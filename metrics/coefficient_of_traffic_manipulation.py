@@ -102,16 +102,14 @@ as described in Ben Nimmo's "Measuring Traffic Manipulation on Twitter,
 based on a list of tweets that mention that topic.
 
 Args:
-    tweets (iterable of Tweet objects) -- the list of tweets.
+    tweets (list of Tweet objects) -- the list of tweets.
 
 Returns:
     float -- the coefficient of traffic manipulation.
 """
 
 def coefficient(tweets):
-    
-    tweets = list(tweets)
-    
+        
     users_with_freq = _users_with_frequency(tweets)
 
     r = _retweet_proportion(tweets)
