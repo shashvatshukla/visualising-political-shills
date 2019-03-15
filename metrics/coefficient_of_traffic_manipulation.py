@@ -11,7 +11,7 @@ Args:
 Returns:
     float -- the percentage of retweets in 'tweets', a floating-point number between 0 and 100.
 """
-def retweet_proportion(tweets):
+def _retweet_proportion(tweets):
     retweets = 0
     original = 0
     
@@ -55,16 +55,16 @@ Return the average number of tweets per user from a list of tweets.
 
 Args:
     tweets (list of Tweet objects) -- the list of tweets.
+    users_with_freq (Counter of strings) -- a counter of usernames with the number of tweets in 'tweets' from each user.
 
 Returns:
     float -- average number of tweets per user
 """
 
-def average_tweets_per_user(tweets):
+def _average_tweets_per_user(tweets, users_with_freq):
     
     tweets_number = len(tweets)
-    users = _users_with_frequency(tweets)
-    users_number = len(users)
+    users_number = len(users_with_freq)
 
     return tweets_number/users_number
 
@@ -74,6 +74,7 @@ Return the percentage of the traffic that comes from the n most active accounts 
 
 Args:
     tweets (list of Tweet objects) -- the list of tweets.
+    users_with_freq (Counter of strings) -- a counter of usernames with the number of tweets in 'tweets' from each user.
     n (int) -- number of most active users to be considered.
 
 Returns:
@@ -82,10 +83,9 @@ Returns:
 
 """
 
-def proportion_of_traffic_from_top_users(tweets, n):
+def _proportion_of_traffic_from_top_users(tweets, users_with_freq, n):
     
     total_traffic = len(tweets)
-    users_with_freq = _users_with_frequency(tweets)
     top_users = users_with_freq.most_common(n)
     
     traffic_from_top_users = 0
@@ -112,8 +112,10 @@ def coefficient(tweets):
     
     tweets = list(tweets)
     
-    r = retweet_proportion(tweets)
-    f = proportion_of_traffic_from_top_users(tweets, 50)
-    u = average_tweets_per_user(tweets)
+    users_with_freq = _users_with_frequency(tweets)
+
+    r = _retweet_proportion(tweets)
+    f = _proportion_of_traffic_from_top_users(tweets, users_with_freq, 50)
+    u = _average_tweets_per_user(tweets, users_with_freq)
     
     return (r/10 + f + u)
