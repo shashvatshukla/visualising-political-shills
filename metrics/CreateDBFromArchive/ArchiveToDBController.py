@@ -38,7 +38,7 @@ class ArchiveToDBController:
         try:
             # Establish connection
             connection = psycopg2.connect(user="postgres",
-                                          password="toporasi31",
+                                          password="your_pass_here(obtained during installation)",
                                           host="127.0.0.1",
                                           port="5432",
                                           database="postgres")
