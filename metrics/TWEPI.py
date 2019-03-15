@@ -46,7 +46,7 @@ class TwePI:
     Return user metadata, could be used for bot detection or just metrics
 
     :parameter account: name of the account, ie. realDonaldTrump
-    :return: iterator containing the requested tweets
+    :return: dictionary containing user metadata values.
     
     """
     def get_metadata(self, account):
