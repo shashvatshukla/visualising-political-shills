@@ -46,7 +46,7 @@ class TwePI:
     Return user metadata, could be used for bot detection or just metrics
 
     :parameter account: name of the account, ie. realDonaldTrump
-    :return: iterator containing the requested tweets
+    :return: dictionary containing user metadata values.
     
     """
     def get_metadata(self, account):
@@ -70,14 +70,14 @@ class TwePI:
     :parameter bigben_tweet_id_start: the id of the big ben tweet, represents the start hour and day
     :parameter bigben_tweet_id_end: the id of the big ben tweet, represents the start hour and day
     :parameter hashtags: list of words that are used 
-    :return: iterator containing the requested tweets
+    :return: list containing the requested tweets
     
     """
     def tweets_by_hashtag_between(self, bigben_tweet_id_start, bigben_tweet_id_end, hashtags):
         tweet_iterator = Cursor(self._oauth_api.search, q=hashtags + "-filter:retweets AND -filter:replies", count=15,
                                 since_id=bigben_tweet_id_start,
                                 max_id=bigben_tweet_id_end).items()
-        return tweet_iterator
+        return list(tweet_iterator)
 
     """
     Return tweets that contain the specified words and that were posted between 2 specified big ben tweets, excluding retweets and replies
@@ -85,7 +85,7 @@ class TwePI:
     :parameter bigben_tweet_id_start: the id of the big ben tweet, represents the start hour and day
     :parameter bigben_tweet_id_end: the id of the big ben tweet, represents the start hour and day
     :parameter words: list of words that are used 
-    :return: iterator containing the requested tweets
+    :return: list containing the requested tweets
     
     """
     def tweets_by_word(self, bigben_tweet_id_start, bigben_tweet_id_end, words):
@@ -93,7 +93,7 @@ class TwePI:
                                 since_id=bigben_tweet_id_start,
                                 max_id=bigben_tweet_id_end,
                                 tweet_mode="extended").items()
-        return tweet_iterator
+        return list(tweet_iterator)
 
     """
     Return tweets that contain the specified hashtags and that were posted between 2 specified big ben tweets, INCLUDING RETWEETS AND REPLIES
@@ -101,14 +101,14 @@ class TwePI:
     :parameter bigben_tweet_id_start: the id of the big ben tweet, represents the start hour and day
     :parameter bigben_tweet_id_end: the id of the big ben tweet, represents the start hour and day
     :parameter hashtags: list of words that are used 
-    :return: iterator containing the requested tweets
+    :return: list containing the requested tweets
     
     """
     def tweets_by_hashtag_with_retweets(self, bigben_tweet_id_start, bigben_tweet_id_end, hashtags):
         tweet_iterator = Cursor(self._oauth_api.search, q=hashtags, count=15,
                                 since_id=bigben_tweet_id_start,
                                 max_id=bigben_tweet_id_end).items()
-        return tweet_iterator
+        return list(tweet_iterator)
 
     """
     Return tweets that contain the specified words and that were posted between 2 specified big ben tweets, INCLUDING RETWEETS AND REPLIES
@@ -116,7 +116,7 @@ class TwePI:
     :parameter bigben_tweet_id_start: the id of the big ben tweet, represents the start hour and day
     :parameter bigben_tweet_id_end: the id of the big ben tweet, represents the start hour and day
     :parameter words: list of words that are used 
-    :return: iterator containing the requested tweets
+    :return: list containing the requested tweets
     
     """
     def tweets_by_word_with_retweets(self, bigben_tweet_id_start, bigben_tweet_id_end, words):
@@ -124,7 +124,7 @@ class TwePI:
                                 since_id=bigben_tweet_id_start,
                                 max_id=bigben_tweet_id_end,
                                 tweet_mode="extended").items()
-        return tweet_iterator
+        return list(tweet_iterator)
 
     """
     Function that decides if a bot is an influencer based on the number of mentions
