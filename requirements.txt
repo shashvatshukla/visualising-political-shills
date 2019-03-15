@@ -1,0 +1,8 @@
+### If you use PyCharm just go to ###
+
+# Metrics reqs #
+botometer
+psycopg2
+tweepy
+
+# UI reqs #
