@@ -8,7 +8,7 @@ Ensure you have everything in requirements.txt
 
     start start.bat
 
-## On Linux
+## On Linux/Mac
 
     chmod +x start.sh
     ./start.sh
