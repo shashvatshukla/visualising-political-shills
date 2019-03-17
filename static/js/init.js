@@ -6,6 +6,18 @@
     let isStartDateGiven = false;
     let isEndDateGiven = false;
     const $submitButton = $("#submitter"); 
+    
+    /*returns an array with all the chips tags*/
+    const getChipsData = () => {
+      var chipInstance = M.Chips.getInstance($(".chips"));
+      var chipsArray = chipInstance.chipsData;
+      var chipsDataArray = [];
+      for (var i = 0; i < chipsArray.length; i++){
+        var chip = chipsArray[i].tag;
+        chipsDataArray.push(chip);
+      }
+      return chipsDataArray;
+    };
 
     const enableSubmit = () => {
       $submitButton.removeClass("disabled");
