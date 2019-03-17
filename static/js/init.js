@@ -40,7 +40,7 @@
       if ($(".chip").toArray().length > 0) {
         isHashtagGiven = true;
         if (checkForInput()) enableSubmit();
-        document.getElementById('hidden-tags').value = getChipsData();
+        document.getElementById('hidden-tags').value = JSON.stringify(getChipsData());
       }
       else {
         isHashtagGiven = false;
