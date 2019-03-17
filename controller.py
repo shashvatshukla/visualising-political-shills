@@ -13,7 +13,7 @@ def index():
 @app.route('/page2', methods=['POST', 'GET'])
 def second():
     if request.method == 'POST':
-        hashtag = request.form['hashtags']
+        hashtag = request.form['hidden-tags']
         start_date = request.form['start-date']
         end_date = request.form['end-date']
         text = "Gathered tweets from " + start_date + " to " + end_date + " for #" + hashtag
