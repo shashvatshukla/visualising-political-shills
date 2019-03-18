@@ -16,3 +16,28 @@ Ensure you have everything in requirements.txt
 ## Finally
 
 Open localhost:5000 in a browser.
+
+# Setting up a postgres server
+## On Windows
+1. Download postgresql from: https://www.postgresql.org/download/. 
+During the installation you will be prompted to set up a password for the database.
+2. Go to Task Manager > Services, find the service postgresql there
+and make sure it is running.
+3. Add a new environment variable pointing to 
+C:\Program Files\PostgreSQL\11\bin. You can log in to the database by writing ```psql -U postgres``` and typing the 
+password you chose.
+4. The table that is created by the tool is ```tweets```. To see
+the contents of the table run ```select * from tweets```.
+
+## On Linux
+See https://www.godaddy.com/garage/how-to-install-postgresql-on-ubuntu-14-04/ and
+step 4 from the Windows setup.
+
+# Using the Archive to DB tool
+
+After making sure the postgres service is running, make 
+sure that the database connection code in ```worker.py``` and ```multithread_controller.py``` 
+contain the password you set when you installed postgresql. Then you can
+run the tool from the terminal. The program you should run is ```multithread_contorller.py``` and it accepts 2
+command line args: (relative) path to archive and a list of words
+to filter by. Eg: ```python multithread-controller -a C:\Archive #usa russia```
