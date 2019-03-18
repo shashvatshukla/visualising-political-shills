@@ -52,7 +52,7 @@ class Controller:
         try:
             # Establish connection
             connection = psycopg2.connect(user="postgres",
-                                          password="toporasi31",
+                                          password="pass123",
                                           host="127.0.0.1",
                                           port="5432",
                                           database="postgres")
