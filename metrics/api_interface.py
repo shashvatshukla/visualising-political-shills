@@ -1,17 +1,17 @@
-from tweepy import OAuthHandler
+import botometer
 from tweepy import API
 from tweepy import AppAuthHandler
+from tweepy import OAuthHandler
 from tweepy import Cursor
-import botometer
 
 """
 A very basic (right now) API that we will use to interact with different tools and expose various functions
-that will help us with the metrics
+that will help us with the metrics.
 
 """
 
 
-class TwePI:
+class ShillAPI:
     def __init__(self, consumer_key, consumer_secret, access_token, access_token_secret, botometer_key):
         # Init the keys and secrets
         self._consumer_key = consumer_key
@@ -75,10 +75,7 @@ class TwePI:
         :return: iterator containing the requested tweets
 
         """
-        tweet_iterator = Cursor(self._oauth_api.search, q=hashtags + "-filter:retweets AND -filter:replies", count=15,
-                                since_id=bigben_tweet_id_start,
-                                max_id=bigben_tweet_id_end).items()
-        return list(tweet_iterator)
+        pass
 
     def tweets_by_word(self, bigben_tweet_id_start, bigben_tweet_id_end, words):
         """
@@ -90,11 +87,7 @@ class TwePI:
         :return: iterator containing the requested tweets
 
         """
-        tweet_iterator = Cursor(self._oauth_api.search, q=words + "-filter:retweets AND -filter:replies", count=15,
-                                since_id=bigben_tweet_id_start,
-                                max_id=bigben_tweet_id_end,
-                                tweet_mode="extended").items()
-        return list(tweet_iterator)
+        pass
 
     def tweets_by_hashtag_with_retweets(self, bigben_tweet_id_start, bigben_tweet_id_end, hashtags):
         """
@@ -107,10 +100,7 @@ class TwePI:
         :return: iterator containing the requested tweets
 
         """
-        tweet_iterator = Cursor(self._oauth_api.search, q=hashtags, count=15,
-                                since_id=bigben_tweet_id_start,
-                                max_id=bigben_tweet_id_end).items()
-        return list(tweet_iterator)
+        pass
 
     def tweets_by_word_with_retweets(self, bigben_tweet_id_start, bigben_tweet_id_end, words):
         """
@@ -123,11 +113,7 @@ class TwePI:
         :return: iterator containing the requested tweets
 
         """
-        tweet_iterator = Cursor(self._oauth_api.search, q=words, count=15,
-                                since_id=bigben_tweet_id_start,
-                                max_id=bigben_tweet_id_end,
-                                tweet_mode="extended").items()
-        return list(tweet_iterator)
+        pass
 
     def is_influencer(self, bot):
         """
@@ -149,7 +135,7 @@ class TwePI:
         Function that decides if an account is a bot (uses Botometer)
         Right now uses the english score
 
-        :parameter bot: name of the account, ie. realDonaldTrump
+        :parameter account: name of the account, ie. realDonaldTrump
         :returns: true if the bot score is above a certain threshold
 
         """
