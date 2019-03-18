@@ -78,7 +78,7 @@ class TwePI:
         tweet_iterator = Cursor(self._oauth_api.search, q=hashtags + "-filter:retweets AND -filter:replies", count=15,
                                 since_id=bigben_tweet_id_start,
                                 max_id=bigben_tweet_id_end).items()
-        return tweet_iterator
+        return list(tweet_iterator)
 
     def tweets_by_word(self, bigben_tweet_id_start, bigben_tweet_id_end, words):
         """
@@ -94,7 +94,7 @@ class TwePI:
                                 since_id=bigben_tweet_id_start,
                                 max_id=bigben_tweet_id_end,
                                 tweet_mode="extended").items()
-        return tweet_iterator
+        return list(tweet_iterator)
 
     def tweets_by_hashtag_with_retweets(self, bigben_tweet_id_start, bigben_tweet_id_end, hashtags):
         """
@@ -110,7 +110,7 @@ class TwePI:
         tweet_iterator = Cursor(self._oauth_api.search, q=hashtags, count=15,
                                 since_id=bigben_tweet_id_start,
                                 max_id=bigben_tweet_id_end).items()
-        return tweet_iterator
+        return list(tweet_iterator)
 
     def tweets_by_word_with_retweets(self, bigben_tweet_id_start, bigben_tweet_id_end, words):
         """
@@ -127,7 +127,7 @@ class TwePI:
                                 since_id=bigben_tweet_id_start,
                                 max_id=bigben_tweet_id_end,
                                 tweet_mode="extended").items()
-        return tweet_iterator
+        return list(tweet_iterator)
 
     def is_influencer(self, bot):
         """

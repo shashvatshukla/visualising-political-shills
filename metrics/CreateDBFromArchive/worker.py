@@ -2,6 +2,8 @@ import bz2
 import os
 import re
 
+import json
+
 import psycopg2
 
 # -------------------------
@@ -22,13 +24,19 @@ abbr_to_number = {
 # -------------------------
 
 
+def get_password():
+    with open("../../keys.json") as keys:
+        data = json.load(keys)
+        return data["database_password"]
+
+
 class Worker:
     def __init__(self, words):
         self._words = words
         self.cnt = 0
         self._db_creds = {
             "user": "postgres",
-            "password": "toporasi31",
+            "password": get_password(),
             "host": "127.0.0.1",
             "port": "5432",
             "database": "postgres"
@@ -38,7 +46,7 @@ class Worker:
         try:
             # Establish connection
             connection = psycopg2.connect(user="postgres",
-                                          password="toporasi31",
+                                          password=get_password(),
                                           host="127.0.0.1",
                                           port="5432",
                                           database="postgres")

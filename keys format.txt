@@ -1,0 +1,6 @@
+// This is the format that your keys.json must follow
+
+{
+    "database_password" : // The password for the PostgreSQL Database
+    "archive_path"      : // Absolute path to the twitter archive
+}

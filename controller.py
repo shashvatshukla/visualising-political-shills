@@ -1,4 +1,5 @@
 from flask import *
+import json
 import sys
 app = Flask(__name__)
 
@@ -13,10 +14,10 @@ def index():
 @app.route('/page2', methods=['POST', 'GET'])
 def second():
     if request.method == 'POST':
-        hashtag = request.form['textarea1']
+        hashtags = json.loads(request.form['hidden-tags'])
         start_date = request.form['start-date']
         end_date = request.form['end-date']
-        text = "Gathered tweets from " + start_date + " to " + end_date + " for #" + hashtag
+        text = "Gathered tweets from " + start_date + " to " + end_date + " for " + ", ".join(hashtags)
         return render_template('page2.html', title="Analysis", return_text=text)
     elif request.method == 'GET':
         return redirect(url_for('index', code=302))
