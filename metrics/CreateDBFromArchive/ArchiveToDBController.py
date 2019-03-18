@@ -3,6 +3,7 @@ import shutil
 import bz2
 import re
 import psycopg2
+import json
 
 
 # -------------------------
@@ -22,13 +23,18 @@ abbr_to_number = {
 }
 # -------------------------
 
+def get_password():
+    with open("../../keys.json") as keys:
+        data = json.load(keys)
+        return data["database_password"]
+
 
 class ArchiveToDBController:
     def __init__(self, archive_path):
         self.archive_path = archive_path
         self._db_creds = {
             "user": "postgres",
-            "password": "toporasi31",
+            "password": get_password(),
             "host": "127.0.0.1",
             "port": "5432",
             "database": "postgres"
@@ -38,7 +44,7 @@ class ArchiveToDBController:
         try:
             # Establish connection
             connection = psycopg2.connect(user="postgres",
-                                          password="your_pass_here(obtained during installation)",
+                                          password=get_password(),
                                           host="127.0.0.1",
                                           port="5432",
                                           database="postgres")
