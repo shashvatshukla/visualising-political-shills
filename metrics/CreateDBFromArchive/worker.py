@@ -35,7 +35,7 @@ class Worker:
         self.cnt = 0
         self._db_creds = {
             "user": "postgres",
-            "password": "toporasi31",
+            "password": "pass123",
             "host": "127.0.0.1",
             "port": "5432",
             "database": "postgres"
@@ -104,11 +104,13 @@ class Worker:
                         rt_status = "FALSE"
 
                     add_tweet_query = "INSERT INTO tweets " \
-                                      "(created_at, text, usr, twid, rt_status) " \
-                                      "VALUES (TIMESTAMP " + \
-                                               escape_quote(timestamp) + "," + \
-                                               escape_quote(match_dict["text"].replace('\'', '\'\'')) + "," + \
-                                               escape_quote(match_dict["usr"]) + "," + \
-                                               escape_quote(match_dict["twid"]) + "," + \
-                                               rt_status + ")"
+                                      "(created_at, text, usr, " \
+                                      " twid, rt_status) " \
+                                      "VALUES (" \
+                                      "TIMESTAMP " + \
+                                      escape_quote(timestamp) + "," + \
+                                      escape_quote(match_dict["text"].replace('\'', '\'\'')) + "," + \
+                                      escape_quote(match_dict["usr"]) + "," + \
+                                      escape_quote(match_dict["twid"]) + "," + \
+                                      rt_status + ")"
                     db_cursor.execute(add_tweet_query)

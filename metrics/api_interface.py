@@ -5,14 +5,15 @@ from tweepy import OAuthHandler
 from tweepy import Cursor
 
 """
-A very basic (right now) API that we will use to interact with different tools and expose various functions
-that will help us with the metrics.
+A very basic (right now) API that we will use to interact with different tools 
+and expose various functions that will help us with the metrics.
 
 """
 
 
 class ShillAPI:
-    def __init__(self, consumer_key, consumer_secret, access_token, access_token_secret, botometer_key):
+    def __init__(self, consumer_key, consumer_secret, access_token,
+                 access_token_secret, botometer_key):
         # Init the keys and secrets
         self._consumer_key = consumer_key
         self._consumer_secret = consumer_secret
@@ -20,23 +21,28 @@ class ShillAPI:
         self._access_token_secret = access_token_secret
         self._botometer_key = botometer_key
 
-        # Set up OAuth API; slow but must be used for almost all kinds of requests
+        # Set up OAuth API; slow but must be used for almost all kinds of
+        # requests
         auth = OAuthHandler(self._consumer_key, self._consumer_secret)
         auth.set_access_token(self._access_token, self._access_token_secret)
         self._oauth_api = API(auth)
 
-        # Set up AppAuth API; faster and also allows for more requests, can only be used for certain stuff
+        # Set up AppAuth API; faster and also allows for more requests, can
+        # only be used for certain stuff
         auth = AppAuthHandler(self._consumer_key, self._consumer_secret)
         auth.secure = True
-        self._appauth_api = API(auth, wait_on_rate_limit=True, wait_on_rate_limit_notify=True)
+        self._appauth_api = API(auth, wait_on_rate_limit=True,
+                                wait_on_rate_limit_notify=True)
 
         # Botometer object
-        self._botometer = botometer.Botometer(wait_on_ratelimit=True,
-                                              mashape_key=self._botometer_key,
-                                              consumer_key=self._consumer_key,
-                                              consumer_secret=self._consumer_secret,
-                                              access_token=self._access_token,
-                                              access_token_secret=self._access_token_secret)
+        self._botometer = botometer.Botometer(
+            wait_on_ratelimit=True,
+            mashape_key=self._botometer_key,
+            consumer_key=self._consumer_key,
+            consumer_secret=self._consumer_secret,
+            access_token=self._access_token,
+            access_token_secret=self._access_token_secret
+        )
 
         # Constants and filters
         self._mentions_threshold = 100
@@ -64,52 +70,18 @@ class ShillAPI:
             "protected": user.protected
         })
 
-    def tweets_by_hashtag_between(self, bigben_tweet_id_start, bigben_tweet_id_end, hashtags):
+    def get_tweets(self, start, end, words, with_rt=True):
         """
-        Return tweets that contain the specified hashtags and that were posted between 2 specified big ben tweets,
-        excluding retweets and replies
+        Return tweets that contain the specified words (at least one) between
+        start and finish (those depend on the API implementation), with or
+        without RTs.
 
-        :parameter bigben_tweet_id_start: the id of the big ben tweet, represents the start hour and day
-        :parameter bigben_tweet_id_end: the id of the big ben tweet, represents the start hour and day
-        :parameter hashtags: list of words that are used
-        :return: iterator containing the requested tweets
-
-        """
-        pass
-
-    def tweets_by_word(self, bigben_tweet_id_start, bigben_tweet_id_end, words):
-        """
-        Return tweets that contain the specified words and that were posted between 2 specified big ben tweets, excluding retweets and replies
-
-        :parameter bigben_tweet_id_start: the id of the big ben tweet, represents the start hour and day
-        :parameter bigben_tweet_id_end: the id of the big ben tweet, represents the start hour and day
-        :parameter words: list of words that are used
-        :return: iterator containing the requested tweets
-
-        """
-        pass
-
-    def tweets_by_hashtag_with_retweets(self, bigben_tweet_id_start, bigben_tweet_id_end, hashtags):
-        """
-        Return tweets that contain the specified hashtags and that were posted between 2 specified big ben tweets,
-        INCLUDING RETWEETS AND REPLIES
-
-        :parameter bigben_tweet_id_start: the id of the big ben tweet, represents the start hour and day
-        :parameter bigben_tweet_id_end: the id of the big ben tweet, represents the start hour and day
-        :parameter hashtags: list of words that are used
-        :return: iterator containing the requested tweets
-
-        """
-        pass
-
-    def tweets_by_word_with_retweets(self, bigben_tweet_id_start, bigben_tweet_id_end, words):
-        """
-        Return tweets that contain the specified words and that were posted between 2 specified big ben tweets,
-        INCLUDING RETWEETS AND REPLIES
-
-        :parameter bigben_tweet_id_start: the id of the big ben tweet, represents the start hour and day
-        :parameter bigben_tweet_id_end: the id of the big ben tweet, represents the start hour and day
-        :parameter words: list of words that are used
+        :parameter start: depends on the implementation;
+                          For the SEARCH API, a BIG BEN tweet id is expected;
+                          For the DB API, a timestamp is expected.
+        :parameter end: as specified for start.
+        :parameter words: list of words the tweets must contain.
+        :parameter with_rt: include RTs or not
         :return: iterator containing the requested tweets
 
         """
@@ -117,7 +89,8 @@ class ShillAPI:
 
     def is_influencer(self, bot):
         """
-        Function that decides if a bot is an influencer based on the number of mentions
+        Function that decides if a bot is an influencer based on the number of
+        mentions
 
         :parameter bot: name of the bot, ie. realDonaldTrump
         :returns: true if the number of mentions is above a preset threshold
