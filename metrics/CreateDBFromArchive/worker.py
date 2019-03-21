@@ -35,7 +35,7 @@ class Worker:
         self.cnt = 0
         self._db_creds = {
             "user": "postgres",
-            "password": "toporasi31",
+            "password": "pass123",
             "host": "127.0.0.1",
             "port": "5432",
             "database": "postgres"
