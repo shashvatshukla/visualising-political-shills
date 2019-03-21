@@ -2,7 +2,7 @@ import tweepy
 
 def tweet_to_dict(tweet):
     """
-    Converts a Tweet object to a dictionary containing the relevant tweet metadata. 
+    Converts a Tweet object to a dictionary only containing the relevant metadata, to make it compatible with data stored in the database. 
 
     :param tweet: a Tweet object.
     :return: a dictionary containing the created_at, text, user id, tweet id, and retweet status of the tweet.
