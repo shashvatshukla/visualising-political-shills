@@ -1,8 +1,7 @@
 import bz2
+import json
 import os
 import re
-
-import json
 
 import psycopg2
 
@@ -23,7 +22,7 @@ abbr_to_number = {
 }
 # -------------------------
 
-
+# TODO: SHOULD BE LOADED AS A GLOBAL VAR
 def get_password():
     with open("../../keys.json") as keys:
         data = json.load(keys)
@@ -36,7 +35,7 @@ class Worker:
         self.cnt = 0
         self._db_creds = {
             "user": "postgres",
-            "password": get_password(),
+            "password": "toporasi31",
             "host": "127.0.0.1",
             "port": "5432",
             "database": "postgres"
@@ -46,7 +45,7 @@ class Worker:
         try:
             # Establish connection
             connection = psycopg2.connect(user="postgres",
-                                          password=get_password(),
+                                          password="pass123",
                                           host="127.0.0.1",
                                           port="5432",
                                           database="postgres")
@@ -67,7 +66,8 @@ class Worker:
     def _deal_with_archives(self, files, db_cursor):
         for archive in files:
             decompressed_json = archive + '.json'
-            with open(decompressed_json, 'wb') as new_file, open(archive, 'rb') as file:
+            with open(decompressed_json, 'wb') as new_file, \
+                 open(archive, 'rb') as file:
                 decompressor = bz2.BZ2Decompressor()
                 for data in iter(lambda: file.read(100 * 1024), b''):
                     new_file.write(decompressor.decompress(data))
@@ -89,13 +89,26 @@ class Worker:
             text = file.read()
             for match in re.finditer(tweet_pattern, text):
                 match_dict = match.groupdict()
-                if match_dict['lang'] == "en" and re.search('|'.join(self._words), match_dict['text']):
+                if match_dict['lang'] == "en" and \
+                   re.search('|'.join(self._words), match_dict['text']):
                     splitted = match["created_at"].split(' ')
-                    timestamp = splitted[5] + "-" + abbr_to_number[splitted[1]] + "-" + splitted[2] + " " + splitted[3]
-                    add_tweet_query = "INSERT INTO tweets (created_at, text, usr, twid) " \
+                    timestamp = splitted[5] + "-" + \
+                                abbr_to_number[splitted[1]] + "-" + \
+                                splitted[2] + " " + \
+                                splitted[3]
+
+                    if match_dict["text"][0] == 'R' and \
+                       match_dict["text"][1] == 'T':
+                        rt_status = "TRUE"
+                    else:
+                        rt_status = "FALSE"
+
+                    add_tweet_query = "INSERT INTO tweets " \
+                                      "(created_at, text, usr, twid, rt_status) " \
                                       "VALUES (TIMESTAMP " + \
                                                escape_quote(timestamp) + "," + \
                                                escape_quote(match_dict["text"].replace('\'', '\'\'')) + "," + \
                                                escape_quote(match_dict["usr"]) + "," + \
-                                               escape_quote(match_dict["twid"]) + ")"
+                                               escape_quote(match_dict["twid"]) + "," + \
+                                               rt_status + ")"
                     db_cursor.execute(add_tweet_query)

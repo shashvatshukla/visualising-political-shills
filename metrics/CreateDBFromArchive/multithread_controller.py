@@ -2,9 +2,10 @@ import argparse
 import multiprocessing
 import os
 import time
+
 import psycopg2
 
-import worker as worker
+import worker
 
 
 class Controller:
@@ -18,8 +19,9 @@ class Controller:
         self._total_files = 0
 
         for _, _, files in os.walk(self._archive_path):
-            for _ in files:
-                self._total_files += 1
+            for file in files:
+                if file.endswith("bz2"):
+                    self._total_files += 1
 
     def _worker(self, task_queue):
         DBworker = worker.Worker(self._words)
@@ -30,17 +32,20 @@ class Controller:
             with self._n_files_done.get_lock():
                 self._n_files_done.value += self._task_size
                 if self._n_files_done.value < self._total_files:
-                    print("Files done: " + str(self._n_files_done.value) + " out of " + str(self._total_files),
+                    print("Files done: " + str(self._n_files_done.value) +
+                          " out of " + str(self._total_files),
                           end='\r')
                 else:
-                    print("Files done: " + str(self._n_files_done.value) + " out of " + str(self._total_files),
+                    print("Files done: " + str(self._n_files_done.value) +
+                          " out of " + str(self._total_files),
                           end='\n')
 
     def _populate_tasks(self, task_queue):
         all_files = []
         for root, dirs, files in os.walk(self._archive_path):
-            for name in files:
-                all_files.append(os.path.join(root, name))
+            for file in files:
+                if file.endswith("bz2"):
+                    all_files.append(os.path.join(root, file))
 
         for idx in range(0, len(all_files), self._task_size):
             task_queue.put(all_files[idx:idx + self._task_size])
@@ -67,7 +72,8 @@ class Controller:
                                       created_at TIMESTAMP NOT NULL,
                                       text TEXT NOT NULL,
                                       usr VARCHAR (255) NOT NULL,
-                                      twid VARCHAR (255) NOT NULL);
+                                      twid VARCHAR (255) NOT NULL,
+                                      rt_status BOOLEAN NOT NULL);
                                  '''
             cursor.execute(create_table_query)
         except psycopg2.Error as error:
