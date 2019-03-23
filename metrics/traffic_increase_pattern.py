@@ -4,23 +4,6 @@ import plotly.graph_objs as go
 
 #Traffic increase pattern
 
-
-def _date_up_to_minutes (datetime_string):
-    """
-    Turns the timestamp of a tweet represented as a string into a datetime object corresponding to the date and time up to the minutes.
-
-    :param datetime_string: A string of the form "YYYY-MM-DD hh:mm:ss" representing the date and time a tweet was posted.
-
-    :return: A datetime object corresponding to the same date and time, up to the minutes.
-
-    >>> traffic_increase_pattern._date_up_to_minutes("2017-11-16 03:17:28")
-    2017-11-16 03:17:00
-    
-    """
-    datetime_string = datetime_string[:-3]+":00" #remove the last 3 characters (:ss) from the string.
-    return datetime_string
-
-
 def _tweet_times (tweets):
     """
     Given a list of tweets, returns a list containing the time of each tweet, up to minutes.
@@ -29,9 +12,8 @@ def _tweet_times (tweets):
     
     :return: A list of datetime objects 
     """
-    times = list(map(lambda tweet: _date_up_to_minutes(tweet["created_at"]), tweets))
+    times = list(map(lambda tweet: tweet["created_at"], tweets))
     return times 
-    
 
 def graph_tweets_by_time(tweets, start_datetime, end_datetime, width):
     """
