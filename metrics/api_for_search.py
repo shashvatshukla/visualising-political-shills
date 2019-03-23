@@ -25,4 +25,20 @@ class ShillSearchAPI(ShillAPI):
                                 count=15,
                                 since_id=bigben_tweet_id_start,
                                 max_id=bigben_tweet_id_end).items()
-        return list(tweet_iterator)
+        
+        def tweet_to_dict(tweet):
+            """
+            Converts a Tweet object to a dictionary only containing the relevant metadata, to make it compatible with data stored in the database. 
+            :param tweet: a Tweet object.
+            :return: a dictionary containing the created_at, text, user id, tweet id, and retweet status of the tweet.
+            """
+            tweet_dict = {
+                "created_at": str(tweet.created_at),
+                "text": tweet.text,
+                "usr": tweet.user.id_str,
+                "twid": tweet.id,
+                "rt_status": hasattr(tweet, "retweeted_status")
+            }
+            return tweet_dict
+        
+        return list(map(tweet_to_dict,tweet_iterator))
