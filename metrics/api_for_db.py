@@ -1,5 +1,6 @@
 import psycopg2
 
+import consts
 from api_interface import ShillAPI
 
 """
@@ -15,11 +16,7 @@ class ShillDBAPI(ShillAPI):
                          access_token_secret, botometer_key)
 
         # Establish connection
-        self.connection = psycopg2.connect(user="postgres",
-                                           password="pass123",
-                                           host="127.0.0.1",
-                                           port="5432",
-                                           database="postgres")
+        self.connection = psycopg2.connect(**consts.db_creds)
         self.cursor = self.connection.cursor()
 
     def __del__(self):
@@ -48,6 +45,5 @@ class ShillDBAPI(ShillAPI):
                 'twid': row[4],
                 'rt_status': row[5]
             })
-            print(res[len(res) - 1])
 
         return res

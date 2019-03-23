@@ -1,54 +1,21 @@
 import bz2
-import json
 import os
 import re
 
 import psycopg2
 
-# -------------------------
-abbr_to_number = {
-    "Jan": "01",
-    "Feb": "02",
-    "Mar": "03",
-    "Apr": "04",
-    "May": "05",
-    "Jun": "06",
-    "Jul": "07",
-    "Aug": "08",
-    "Sep": "09",
-    "Oct": "10",
-    "Nov": "11",
-    "Dec": "12",
-}
-# -------------------------
-
-# TODO: SHOULD BE LOADED AS A GLOBAL VAR
-def get_password():
-    with open("../../keys.json") as keys:
-        data = json.load(keys)
-        return data["database_password"]
+import consts
 
 
 class Worker:
     def __init__(self, words):
         self._words = words
         self.cnt = 0
-        self._db_creds = {
-            "user": "postgres",
-            "password": "pass123",
-            "host": "127.0.0.1",
-            "port": "5432",
-            "database": "postgres"
-        }
 
     def json_to_db(self, files):
         try:
             # Establish connection
-            connection = psycopg2.connect(user="postgres",
-                                          password="pass123",
-                                          host="127.0.0.1",
-                                          port="5432",
-                                          database="postgres")
+            connection = psycopg2.connect(**consts.db_creds)
             cursor = connection.cursor()
 
             self._deal_with_archives(files, cursor)
@@ -93,12 +60,11 @@ class Worker:
                    re.search('|'.join(self._words), match_dict['text']):
                     splitted = match["created_at"].split(' ')
                     timestamp = splitted[5] + "-" + \
-                                abbr_to_number[splitted[1]] + "-" + \
+                                consts.abbr_to_number[splitted[1]] + "-" + \
                                 splitted[2] + " " + \
                                 splitted[3]
 
-                    if match_dict["text"][0] == 'R' and \
-                       match_dict["text"][1] == 'T':
+                    if match_dict["text"][0:2] == 'RT':
                         rt_status = "TRUE"
                     else:
                         rt_status = "FALSE"

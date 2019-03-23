@@ -6,6 +6,7 @@ import time
 import psycopg2
 
 import worker
+import consts
 
 
 class Controller:
@@ -56,11 +57,7 @@ class Controller:
     def _setup_database():
         try:
             # Establish connection
-            connection = psycopg2.connect(user="postgres",
-                                          password="pass123",
-                                          host="127.0.0.1",
-                                          port="5432",
-                                          database="postgres")
+            connection = psycopg2.connect(**consts.db_creds)
 
             # Create tweets table
             drop_first = '''DROP TABLE IF EXISTS tweets'''
