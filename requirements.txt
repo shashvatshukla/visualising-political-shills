@@ -4,6 +4,8 @@
 botometer
 psycopg2
 tweepy
+plotly
+nltk
 
 # UI reqs #
 flask
