@@ -110,12 +110,15 @@ class Controller:
 def main():
     parser = argparse.ArgumentParser(description='Create DB from tweets')
     parser.add_argument('-a', help='Path to the archive')
-    parser.add_argument('words', metavar='W', type=str, nargs='+',
+    parser.add_argument('words', metavar='W', type=str, nargs='*',
                         help='Words used for filtering')
 
     args = parser.parse_args()
     path = args.a
     words = args.words
+
+    if words == None:
+        words = []
 
     runner = Controller(path, words)
 

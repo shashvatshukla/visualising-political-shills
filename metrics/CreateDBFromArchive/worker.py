@@ -56,7 +56,7 @@ class Worker:
                     continue
 
                 if tweet['lang'] == "en" and \
-                   re.search('|'.join(self._words), tweet['text']):
+                   (len(self._words) == 0 or re.search('|'.join(self._words), tweet['text'])):
                     splitted = tweet["created_at"].split(' ')
                     timestamp = splitted[5] + "-" + \
                                 consts.abbr_to_number[splitted[1]] + "-" + \
