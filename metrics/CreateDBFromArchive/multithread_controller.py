@@ -67,7 +67,7 @@ class Controller:
             create_table_query = ''' CREATE TABLE tweets
                                      (ID SERIAL PRIMARY KEY,
                                       created_at TIMESTAMP NOT NULL,
-                                      text TEXT NOT NULL,
+                                      ntext TEXT NOT NULL,
                                       usr VARCHAR (255) NOT NULL,
                                       twid VARCHAR (255) NOT NULL,
                                       rt_status BOOLEAN NOT NULL);
