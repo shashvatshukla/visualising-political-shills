@@ -52,9 +52,9 @@ class Worker:
                 tweet = json.loads(json_object)
                 
                 # Check if the object is really a Tweet
-                if tweet.get('lang') == None or tweet.get("text") == None or tweet.get("usr") == None:
+                if tweet.get('lang') == None or tweet.get("text") == None or tweet.get("user") == None:
                     continue
-                
+
                 if tweet['lang'] == "en" and \
                    re.search('|'.join(self._words), tweet['text']):
                     splitted = tweet["created_at"].split(' ')
@@ -75,7 +75,7 @@ class Worker:
                                       "TIMESTAMP " + \
                                       escape_quote(timestamp) + "," + \
                                       escape_quote(tweet["text"].replace('\'', '\'\'')) + "," + \
-                                      escape_quote(tweet["usr"]) + "," + \
-                                      escape_quote(tweet["twid"]) + "," + \
+                                      escape_quote(str(tweet["user"]["id"])) + "," + \
+                                      escape_quote(str(tweet["id"])) + "," + \
                                       rt_status + ")"
                     db_cursor.execute(add_tweet_query)
