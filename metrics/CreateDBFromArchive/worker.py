@@ -3,6 +3,7 @@ import os
 import re
 
 import psycopg2
+from psycopg2 import sql
 import json
 
 import consts
@@ -43,9 +44,6 @@ class Worker:
             os.remove(decompressed_json)
 
     def _upload_to_db(self, json_file, db_cursor):
-        def escape_quote(to_escape):
-            return "\'" + to_escape + "\'"
-
         with open(json_file) as file:
             text = file.read()
             for json_object in text.split('\n')[:-1]:
@@ -68,14 +66,7 @@ class Worker:
                     else:
                         rt_status = "FALSE"
 
-                    add_tweet_query = "INSERT INTO tweets " \
-                                      "(created_at, text, usr, " \
-                                      " twid, rt_status) " \
-                                      "VALUES (" \
-                                      "TIMESTAMP " + \
-                                      escape_quote(timestamp) + "," + \
-                                      escape_quote(tweet["text"].replace('\'', '\'\'')) + "," + \
-                                      escape_quote(str(tweet["user"]["id"])) + "," + \
-                                      escape_quote(str(tweet["id"])) + "," + \
-                                      rt_status + ")"
-                    db_cursor.execute(add_tweet_query)
+                    add_tweet_query = sql.SQL("INSERT INTO tweets" \
+                                      "(created_at, text, usr, twid, rt_status)" \
+                                      "VALUES (TIMESTAMP %s, %s, %s, %s, %s)")
+                    db_cursor.execute(add_tweet_query, (timestamp, tweet["text"], str(tweet["user"]["id"]), str(tweet["id"]), rt_status))
