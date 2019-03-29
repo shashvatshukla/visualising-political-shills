@@ -38,4 +38,4 @@ def graph_tweets_by_time(tweets, start_datetime, end_datetime, width):
             autobinx = False
         )]
 
-    py.plot(data, filename = "traffic_pattern.html")
+    return py.plot(data, output_type = 'div')
