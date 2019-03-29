@@ -213,3 +213,9 @@ _:-ms-input-placeholder, :root .demo-graph {
       -ms-flex-align: center;
           align-items: center;
 }
+
+.mdl-card__title {
+  color: #fff;
+  background: #1e88e5 center / cover;
+}
+
