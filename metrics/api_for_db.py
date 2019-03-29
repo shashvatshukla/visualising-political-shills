@@ -1,7 +1,7 @@
 import psycopg2
 
 import consts
-from api_interface import ShillAPI
+from metrics.api_interface import ShillAPI
 
 """
 Middle API that works with the DB obtained from an archive.
