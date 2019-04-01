@@ -79,6 +79,7 @@
     $(document).ready(function () {
       $('.datepicker').datepicker({
         maxDate: new Date(),
+        format: 'yyyy-mm-dd',
       });
     });
 
