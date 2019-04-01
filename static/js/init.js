@@ -54,7 +54,8 @@
 
       $('#end-date').datepicker({
         minDate: getDate($(this)),
-        maxDate: new Date()
+        maxDate: new Date(),
+        format: 'yyyy-mm-dd'
       });
     });
 
@@ -63,7 +64,8 @@
       if (checkForInput()) enableSubmit();
 
       $('#start-date').datepicker({
-        maxDate: dateComparator(getDate($(this)))
+        maxDate: dateComparator(getDate($(this))),
+        format: 'yyyy-mm-dd'
       });
     });
 
