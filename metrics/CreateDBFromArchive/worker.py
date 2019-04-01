@@ -1,6 +1,7 @@
 import bz2
 import os
 import re
+import hashlib
 
 import psycopg2
 from psycopg2 import sql
@@ -61,12 +62,20 @@ class Worker:
                                 splitted[2] + " " + \
                                 splitted[3]
 
+                    text_hash = str(hashlib.md5(tweet["text"].encode('utf-8')).
+                                    hexdigest())
+
                     if tweet["text"][0:2] == 'RT':
                         rt_status = "TRUE"
                     else:
                         rt_status = "FALSE"
 
                     add_tweet_query = sql.SQL("INSERT INTO tweets" \
-                                      "(created_at, text, usr, twid, rt_status)" \
-                                      "VALUES (TIMESTAMP %s, %s, %s, %s, %s)")
-                    db_cursor.execute(add_tweet_query, (timestamp, tweet["text"], str(tweet["user"]["id"]), str(tweet["id"]), rt_status))
+                                      "(created_at, text, usr, twid, md5_hash, rt_status)" \
+                                      "VALUES (TIMESTAMP %s, %s, %s, %s, %s, %s)")
+                    db_cursor.execute(add_tweet_query, (timestamp,
+                                                        tweet["text"],
+                                                        str(tweet["user"]["id"]),
+                                                        str(tweet["id"]),
+                                                        text_hash,
+                                                        rt_status))

@@ -70,9 +70,31 @@ class Controller:
                                       text TEXT NOT NULL,
                                       usr VARCHAR (255) NOT NULL,
                                       twid VARCHAR (255) NOT NULL,
+                                      md5_hash VARCHAR (255) NOT NULL,
                                       rt_status BOOLEAN NOT NULL);
                                  '''
             cursor.execute(create_table_query)
+        except psycopg2.Error as error:
+            print("Error while connecting to PostgreSQL", error)
+        finally:
+            # Batch commit all changes
+            connection.commit()
+
+            # Close connection
+            if connection:
+                cursor.close()
+                connection.close()
+
+    @staticmethod
+    def _create_indexes():
+        try:
+            # Establish connection
+            connection = psycopg2.connect(**consts.db_creds)
+            cursor = connection.cursor()
+
+            text_index = ''' CREATE INDEX text_index ON tweets 
+                             USING hash (text); '''
+            cursor.execute(text_index)
         except psycopg2.Error as error:
             print("Error while connecting to PostgreSQL", error)
         finally:
@@ -102,6 +124,9 @@ class Controller:
         for p in processes:
             p.join()
 
+        print('Creating indexes')
+        self._create_indexes()
+
         print(f'Time taken = {time.time() - start:.10f}')
         for p in processes:
             p.close()
@@ -117,7 +142,7 @@ def main():
     path = args.a
     words = args.words
 
-    if words == None:
+    if words is None:
         words = []
 
     runner = Controller(path, words)

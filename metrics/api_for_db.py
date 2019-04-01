@@ -47,3 +47,20 @@ class ShillDBAPI(ShillAPI):
             })
 
         return res
+
+    def get_similar(self, cluster_size):
+        query = f'''
+                SELECT text, count(*) FROM tweets WHERE rt_status = FALSE 
+                GROUP BY text HAVING count(*) > { cluster_size }
+                '''
+
+        self.cursor.execute(query)
+        rows = self.cursor.fetchall()
+        res = []
+        for row in rows:
+            res.append({
+                'text': str(row[0]),
+                'occurences': row[1],
+            })
+
+        return res

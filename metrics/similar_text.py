@@ -7,6 +7,7 @@ Module that deals with the text similarity metric.
 
 """
 
+api = ShillDBAPI(**consts.shill_api_creds)
 _threshold_to_num = {
     "HI": 0.25,
     "MED": 0.45,
@@ -39,23 +40,11 @@ def get_similar_tweets_to(text, all_tweets, threshold="HI"):
     return res
 
 
-def cluster_tweets_by_text(all_tweets):
+def cluster_tweets_by_text(cluster_size):
     """
-    TODO: find an efficient way to cluster the tweets based on their similarity
 
     :param all_tweets:
     :return:
     """
-    pass
-
-
-if __name__ == "__main__":
-    api = ShillDBAPI(**consts.shill_api_creds)
-    tweets = api.get_tweets("2017-11-01 06:00:00", "2017-11-01 08:00:00", [])
-    text = "All of the ones I checked resolve to, you guessed it, "\
-    "Russia. Now, think the malware actually originates with " \
-    "Trump"
-    print(get_similar_tweets_to(text, tweets, "HI"))
-
-
-
+    res = api.get_similar(cluster_size)
+    return res
