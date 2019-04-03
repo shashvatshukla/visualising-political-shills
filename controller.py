@@ -89,7 +89,7 @@ def second():
 @app.route('/metric1', methods=['GET'])
 def metric1():
     return render_template('metric1.html',
-                           iv_traffic_increase2=Markup(
+                           div_traffic_increase2=Markup(
                                metrics_data.traffic_increase_plot))
 
 
