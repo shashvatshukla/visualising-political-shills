@@ -1,13 +1,10 @@
 import nltk
-import consts
-from api_for_db import ShillDBAPI
 
 """
 Module that deals with the text similarity metric. 
 
 """
 
-api = ShillDBAPI(**consts.shill_api_creds)
 _threshold_to_num = {
     "HI": 0.25,
     "MED": 0.45,
@@ -40,13 +37,14 @@ def get_similar_tweets_to(text, all_tweets, threshold="HI"):
     return res
 
 
-def cluster_tweets_by_text(cluster_size):
+def cluster_tweets_by_text(api, cluster_size):
     """
 
+    :param api: an api instance
     :param cluster_size: Only messages that appear more than this parameter
                          Will be considered
     :return: list of dictionaries, each dictionary has 2 keys: 'text' and
-             (number of) 'occurences'
+             (number of) 'occurrences'
     """
     res = api.get_similar(cluster_size)
     return res

@@ -60,7 +60,7 @@ class ShillDBAPI(ShillAPI):
         for row in rows:
             res.append({
                 'text': str(row[0]),
-                'occurences': row[1],
+                'occurrences': row[1],
             })
 
         return res
