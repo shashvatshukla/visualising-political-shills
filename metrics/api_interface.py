@@ -13,16 +13,7 @@ and expose various functions that will help us with the metrics.
 """
 
 
-class ShillAPI:
-    @staticmethod
-    def create_API():
-        api_creds = consts.shill_api_creds
-        return ShillAPI(api_creds["consumer_key"], api_creds["consumer_secret"],
-                        api_creds["access_token"], api_creds["access_token_secret"],
-                        api_creds["botometer_key"])
-            
-                        
-    
+class ShillAPI:                        
     def __init__(self, consumer_key, consumer_secret, access_token,
                  access_token_secret, botometer_key):
         # Init the keys and secrets
