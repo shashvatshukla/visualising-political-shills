@@ -10,6 +10,13 @@ Middle API that works with the DB obtained from an archive.
 
 
 class ShillDBAPI(ShillAPI):
+    @staticmethod
+    def create_API():
+        api_creds = consts.shill_api_creds
+        return ShillDBAPI(api_creds["consumer_key"], api_creds["consumer_secret"],
+                        api_creds["access_token"], api_creds["access_token_secret"],
+                        api_creds["botometer_key"])
+    
     def __init__(self, consumer_key, consumer_secret, access_token,
                  access_token_secret, botometer_key):
         super().__init__(consumer_key, consumer_secret, access_token,
