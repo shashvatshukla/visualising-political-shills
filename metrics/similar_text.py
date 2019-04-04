@@ -1,6 +1,6 @@
 import nltk
 import consts
-from api_for_db import ShillDBAPI
+from metrics.api_for_db import ShillDBAPI
 
 """
 Module that deals with the text similarity metric. 
