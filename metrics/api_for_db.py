@@ -31,13 +31,20 @@ class ShillDBAPI(ShillAPI):
         self.cursor.close()
 
     def get_tweets(self, start, end, words, with_rt=True):
-        patterns = "|".join(words)
-        query = f'''
-                SELECT * FROM tweets
-                WHERE text SIMILAR TO '%({patterns})%' AND
-                      created_at BETWEEN '{start}'::timestamp AND 
-                                         '{end}'::timestamp
-                '''
+        if len(words)>0:
+            patterns = "|".join(words)
+            query = f'''
+                    SELECT * FROM tweets
+                    WHERE text SIMILAR TO '%({patterns})%' AND
+                          created_at BETWEEN '{start}'::timestamp AND 
+                                             '{end}'::timestamp
+                    '''
+        else:
+            query = f'''
+                    SELECT * FROM tweets
+                    WHERE created_at BETWEEN '{start}'::timestamp AND 
+                                             '{end}'::timestamp
+                    '''
         if not with_rt:
             query += " AND NOT rt_status = TRUE"
 
