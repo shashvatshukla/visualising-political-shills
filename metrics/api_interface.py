@@ -13,7 +13,7 @@ and expose various functions that will help us with the metrics.
 """
 
 
-class ShillAPI:                        
+class ShillAPI:
     def __init__(self, consumer_key, consumer_secret, access_token,
                  access_token_secret, botometer_key):
         # Init the keys and secrets
@@ -89,8 +89,6 @@ class ShillAPI:
         """
         pass
 
-
-
     def is_influencer(self, bot):
         """
         Function that decides if a bot is an influencer based on the number of
@@ -107,7 +105,7 @@ class ShillAPI:
                 return True
         return False
 
-    def is_bot(self, account, name = True):
+    def is_bot(self, account, name=True):
         """
         Function that decides if an account is a bot (uses Botometer)
         Right now uses the english score
