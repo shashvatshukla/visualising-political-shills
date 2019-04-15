@@ -4,6 +4,7 @@ import psycopg2
 
 from metrics.api_for_search import ShillSearchAPI
 from metrics.api_for_db import ShillDBAPI
+from metrics.BotDetection.helper_functions import add_to_db, does_user_exist
 
 """
 Downloads the metadata of Twitter users, for training the logistic regression on.
@@ -37,26 +38,6 @@ def create_db():
     cursor.execute(create_table_2)
     connection.commit()
 
-
-def add_to_db(usr_id, metadata, is_bot):
-    """
-    Adds the metadata of a user, along with the botometer result, to the database.
-
-    :param usr_id: The Twitter user id
-    :param metadata: The users metadata
-    :param is_bot: The botometer result for the user
-
-    """
-    connection = psycopg2.connect(**consts.db_creds)
-    cursor = connection.cursor()
-    insert = ''' INSERT INTO users
-                 (usr_id, no_statuses, no_followers, no_friends, no_favourites,
-                  no_listed, default_profile, geo_enabled, custom_bg_img,
-                  verified, protected, is_bot)
-                 VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s); '''
-    cursor.execute(insert, [str(usr_id)] + [str(value) for value in metadata] + [str(is_bot)])
-    connection.commit()
-
 def get_record_from_dict(metadata):
     """
     Converts a metadata dictionary to a list, in the correct order to be added to the database by add_to_db.
@@ -69,33 +50,6 @@ def get_record_from_dict(metadata):
             metadata["no_favourites"], metadata["no_listed"], metadata["default_profile"],
             metadata["geo_enabled"], metadata["custom_bg_img"], metadata["verified"],
             metadata["protected"]]
-
-
-# Test if the user with user id 'user' exists in the users table
-# failed: True to check for the id in the failed_users table
-def does_user_exist(user, failed=True):
-    """
-    Checks if a user currently exists with the databases users and failed_users.
-
-    :param user: The twitter user id
-    :param failed: Boolean, True to check both databases, False to check only users
-    :return: Boolean, True if the user id is found
-
-    """
-    connection = psycopg2.connect(**consts.db_creds)
-    cursor = connection.cursor()
-    exists = ''' SELECT usr_id from users
-                 WHERE usr_id = %s;'''
-    cursor.execute(exists, [user])
-    exists_in_users = len(cursor.fetchall()) > 0
-    if failed:
-        failed_exists = ''' SELECT usr_id from failed_users
-                            WHERE usr_id = %s;'''
-        cursor.execute(failed_exists, [user])
-        exists_in_failed = len(cursor.fetchall()) > 0
-        return exists_in_users or exists_in_failed
-    else:
-        return exists_in_users
 
 
 def fail_user(user, error_msg):
@@ -153,7 +107,7 @@ def find_users(start, end, words, amount):
         except psycopg2.IntegrityError as sqlErr:
             print(sqlErr)
         else:
-            print('', end='\r')
+            print('', end='\n')
             print(count, end='')
             if count == amount:
                 break

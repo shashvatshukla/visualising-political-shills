@@ -2,6 +2,10 @@ import statsmodels.api as sm
 import consts
 import psycopg2
 
+"""
+Functions from loading the data from the Fake Project csv files
+"""
+
 
 def validate(metadata, is_user_bot, model):
     """
@@ -40,19 +44,24 @@ def balance(metadata, is_user_bot):
     :return: Balanced metadata and is_user_bot lists
 
     """
-    no_bots = sum(is_user_bot)
-    count = 0
+    no_of_bots = sum(is_user_bot)
+    no_of_humans = len(is_user_bot) - sum(is_user_bot)
+    total = min(no_of_bots, no_of_humans)
+    count_not_bot = 0
+    count_is_bot = 0
     metadata_out = []
     is_user_bot_out = []
     for i in range(len(metadata)):
         if is_user_bot[i]:
-            metadata_out.append(metadata[i])
-            is_user_bot_out.append(True)
+            if count_not_bot < total:
+                metadata_out.append(metadata[i])
+                is_user_bot_out.append(True)
+                count_not_bot += 1
         else:
-            if count < no_bots:
+            if count_is_bot < total:
                 metadata_out.append(metadata[i])
                 is_user_bot_out.append(False)
-                count += 1
+                count_is_bot += 1
     return metadata_out, is_user_bot_out
 
 
