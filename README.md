@@ -38,13 +38,13 @@ step 4 from the Windows setup.
 After making sure the postgres service is running, make 
 sure that the database connection code in ```worker.py``` and ```multithread_controller.py``` 
 contain the password you set when you installed postgresql. Then you can
-run the tool from the terminal. The program you should run is ```multithread_contorller.py``` and it accepts 2
+run the tool from the terminal. The program you should run is ```multithread_controller.py``` and it accepts 2
 command line args: (relative) path to archive and a list of words
 to filter by. 
 
 The file should be run from the main directory. Before running make sure to run 
 ```set PYTHONPATH=.```(Windows) or ```export PYTHONPATH=.```(Linux or Mac) so that the file ```consts.py``` is recognized.
 
-Eg for the inculded test Archive in the dir testing/:
+Eg for the included test Archive in the dir testing/:
  
- ```python metrics/CreateDBFromArchive/multithread_controller.py -a metrics/CreateDBFromArchive/Archive the are```
+ ```python metrics/CreateDBFromArchive/multithread_controller.py -a metrics/CreateDBFromArchive/testing/Archive the are```
