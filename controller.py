@@ -72,7 +72,7 @@ def second():
             metrics_data.avg_tweets = metrics_data.coeff_dictionary.get(
                 "Average number of tweets per user")
             metrics_data.traffic_top_users = metrics_data.coeff_dictionary.get(
-                "Average number of tweets per user")
+                "Proportion of traffic from the top 50 users")
             metrics_data.retweets = metrics_data.coeff_dictionary.get(
                 "Proportion of retweets")
         return render_template('dashboard.html',
