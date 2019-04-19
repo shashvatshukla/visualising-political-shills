@@ -57,7 +57,7 @@ class ShillDBAPI(ShillAPI):
                 'text': row[2],
                 'usr': row[3],
                 'twid': row[4],
-                'rt_status': row[5]
+                'rt_status': row[6]
             })
 
         return res
