@@ -6,6 +6,7 @@ psycopg2
 tweepy
 plotly
 nltk
+numpy
 
 # UI reqs #
 flask
