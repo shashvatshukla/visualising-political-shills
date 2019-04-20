@@ -55,7 +55,7 @@ def second():
         shill_api = api.ShillDBAPI(**consts.shill_api_creds)
         tweets = shill_api.get_tweets(start_date_timestamp, end_date_timestamp,
                                      hashtags)
-        metrics_data.traffic_increase_plot = traffic.graph_tweets_by_time(
+        metrics_data.traffic_increase_plot = traffic.graph_traffic_and_spikes(
             tweets, start_date, end_date, 60)
         metrics_data.similar_text = simtex.cluster_tweets_by_text(shill_api, 4)
 
