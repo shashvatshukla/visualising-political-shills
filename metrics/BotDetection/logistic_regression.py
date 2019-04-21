@@ -1,6 +1,7 @@
 import statsmodels.api as sm
 import consts
 import psycopg2
+import random
 
 """
 Functions from loading the data from the Fake Project csv files
@@ -44,6 +45,12 @@ def balance(metadata, is_user_bot):
     :return: Balanced metadata and is_user_bot lists
 
     """
+    for i in range(len(metadata)):
+        metadata[i].append(is_user_bot[i])
+    random.shuffle(metadata)
+    for i in range(len(metadata)):
+        is_user_bot[i] = metadata[i][-1]
+        del metadata[i][-1]
     no_of_bots = sum(is_user_bot)
     no_of_humans = len(is_user_bot) - sum(is_user_bot)
     total = min(no_of_bots, no_of_humans)
