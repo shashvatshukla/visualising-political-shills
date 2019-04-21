@@ -1,5 +1,8 @@
 import datetime
 import json
+import zipfile
+import os
+import io
 from itertools import chain
 
 
@@ -173,3 +176,22 @@ def metric3():
 
     return render_template('metric3.html',
                            similar_text_bubble=Markup(similar_text_bubble))
+
+@app.route('/download')
+def download():
+    try:
+        files_list = []
+        for root, dirs, files in os.walk("cache/"):
+            for file in files:
+                files_list.append(os.path.join(root, file))
+
+        # Construct the zip file
+        memory_file = io.BytesIO()
+        with zipfile.ZipFile(memory_file, 'w') as zf:
+            for f in files_list:
+                zf.write(f)
+        memory_file.seek(0)
+
+        return send_file(memory_file, attachment_filename='static_cache.zip', as_attachment=True)
+    except:
+        return("Something went wrong")
