@@ -1,0 +1,115 @@
+import psycopg2
+import consts
+import tweepy
+from metrics.api_for_search import ShillSearchAPI
+import tweepy.api
+
+
+def create_db():
+    """
+    Creates the databases for user interactions
+
+    :NETWORK:
+    :usr: The id of the user that performed the interaction
+    :other_usr: The id of the user that was interacted with
+    :interaction: The type of interaction (retweet, mention, reply)
+    :topic: Name of the topic for which the interaction belongs to
+
+    :TOPICS:
+    :topic_code: The code for the topic
+    :hashtag: A hashtag that belongs to the topic
+
+    """
+    connection = psycopg2.connect(**consts.db_creds)
+    cursor = connection.cursor()
+    create_table_1 = ''' CREATE TABLE network
+                         (id SERIAL PRIMARY KEY,
+                          usr VARCHAR(22),
+                          other_usr VARCHAR(22),
+                          interaction VARCHAR(22),
+                          topic_code VARCHAR(22)); '''
+    cursor.execute(create_table_1)
+    create_table_2 = ''' CREATE TABLE topics
+                         (id SERIAL PRIMARY KEY,
+                          topic_code VARCHAR(22),
+                          hashtag VARCHAR(200)); '''
+    cursor.execute(create_table_2)
+    connection.commit()
+
+
+appended = 0
+
+
+def add_link(usr, other_usr, interaction):
+    global appended
+    connection = psycopg2.connect(**consts.db_creds)
+    cursor = connection.cursor()
+    insert = ''' INSERT INTO network
+                     (usr, other_usr, interaction, topic_code)
+                     VALUES (%s, %s, %s, 'test'); '''
+    cursor.execute(insert, [usr, other_usr, interaction])
+    connection.commit()
+    appended += 1
+
+
+api = ShillSearchAPI.create_API()
+
+
+def add_lookup(cache, usr, screen_name, interaction):
+    cache.append((usr, screen_name, interaction))
+    if len(cache) == 100:
+        screen_names = [i[1] for i in cache]
+        ids = api.get_ids(screen_names)
+        for i in range(len(ids)):
+            if ids[i]:
+                add_link(cache[i][0], ids[i], cache[i][2])
+        cache.clear()
+        print(appended)
+
+
+completed = 0
+
+
+def build_network(start):
+    global completed
+    connection = psycopg2.connect(**consts.db_creds)
+    cursor = connection.cursor()
+    tweets_query = ''' SELECT * FROM tweets; '''
+    cursor.execute(tweets_query)
+    tweets = cursor.fetchall()
+    cache = []
+    for i in range(start, len(tweets)):
+        tweet = tweets[i]
+        # print(cache)
+        users = tweet[2].split(' ')
+        if tweet[6]:
+            usr = tweet[3]
+            retweet_len = len(tweet[2].split(":")[0])
+            users = tweet[2][retweet_len:].split(' ')
+            other_usr = tweet[2].split(":")[0][4:]
+            add_lookup(cache, usr, other_usr, "retweet")
+        elif tweet[2][0] == '@':
+            reply_count = 0  # The number of users the tweet is replying to
+            for i in range(len(users)):
+                if len(users[i]) > 0 and users[i][0] != '@':
+                    reply_count = i
+                    break
+            for other_usr in users[:reply_count]:
+                add_lookup(cache, tweet[3], other_usr[1:], "reply")
+            users = users[reply_count:]
+        for other_user in users:
+            if len(other_user) > 0 and other_user[0] == '@':
+                add_lookup(cache, tweet[3], other_usr[1:], "mention")
+        completed = i + 1
+
+
+def build_network_continue_on_error(start):
+    while True:
+        try:
+            build_network(0)
+        except:
+            pass
+
+
+build_network_continue_on_error(0)
+print("Checked: ", completed)
