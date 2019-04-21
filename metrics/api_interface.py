@@ -4,8 +4,6 @@ from tweepy import AppAuthHandler
 from tweepy import OAuthHandler
 from tweepy import Cursor
 
-import consts
-
 """
 A very basic (right now) API that we will use to interact with different tools 
 and expose various functions that will help us with the metrics.
@@ -71,6 +69,27 @@ class ShillAPI:
             "verified": user.verified,
             "protected": user.protected
         })
+
+    def get_ids(self, screen_names):
+        """
+        Return a list of user ids, given a list of screen names
+
+        :parameter screen_names: names of the accounts, ie. [realDonaldTrump]
+        :return: list containing the user ids.
+
+        """
+        users = self._appauth_api.lookup_users(screen_names=screen_names)
+        ids = []
+        current_user = 0
+        for i in range(len(screen_names)):
+            if users[current_user].screen_name.lower() == screen_names[i].lower():
+                ids.append(users[current_user].id_str)
+                current_user += 1
+                if len(users) == current_user:
+                    break
+            else:
+                ids.append(None)
+        return ids
 
     def get_tweets(self, start, end, words, with_rt=True):
         """
