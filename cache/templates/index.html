@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:style="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Visualising Political Shills</title>
+
+  <link rel="shortcut icon" href="../static/twitter_icon.jpg">
+
+  <!-- CSS  -->
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <link href="../static/css/materialize.css" type="text/css" rel="stylesheet" media="screen,projection"/>
+  <link href="../static/css/style.css" type="text/css" rel="stylesheet" media="screen,projection"/>
+</head>
+<body>
+  <nav class="blue darken-1" role="navigation">
+    <div class="nav-wrapper navbar-logo">
+      <a id="logo-container" href="#" class="brand-logo white-text">Group 3</a>
+    </div>
+  </nav>
+
+  <div id="index-banner" class="parallax-container">
+    <div class="section no-pad-bot">
+      <div class="container">
+        <div class="row">
+        </div>
+        <div class="row">
+        </div>
+        <div class="row">
+        </div>
+        <div class="row">
+        </div>
+        <br><br>
+        <h1 class="header center black-text shadow">Detecting Twitter Shills</h1>
+        <div class="row center">
+          <h5 class="header col s12 black-text shadow">A tool to analyse tweets and identify topics influenced by shill accounts</h5>
+        </div>
+        <br><br>
+
+      </div>
+    </div>
+    <div class="parallax"><img src="../static/twitterBlur.jpg" alt="Unsplashed background img 1"></div>
+  </div>
+
+  <div class="container">
+    <div class="section">
+
+      <div class="row">
+      </div>
+      <div class="row">
+      </div>
+
+
+      <!--   Icon Section   -->
+      <div class="row">
+        <form class="col s12" id="analysis" autocomplete="off" action="dashboard.html" method="post">
+          <div class="input-field col s12 chips chips-placeholder" id="chips_input">
+            <input id="hashtags" name="hashtags" class="black-text" style="min-width: 250px !important">
+          </div>
+          <input id="hidden-tags" name = "hidden-tags" type="hidden"> 
+          <div class="row">
+          </div>
+          <div class="input-field col s5">
+            <input id="start-date" name="start-date" type="text" class="datepicker">
+            <label for="start-date">Start date of analysis</label>
+          </div>
+          <div class="input-field col s5">
+            <input id="end-date" name="end-date" type="text" class="datepicker">
+            <label for="end-date">End date of analysis</label>
+          </div>
+          <div class="col s2">
+            <button id="submitter" class="disabled btn-large waves-effect waves-light blue darken-1" type="submit" name="action">Analyse
+              <i class="material-icons right">send</i>
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!--  Scripts-->
+  <script src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
+  <script src="../static/js/materialize.js"></script>
+  <script src="../static/js/init.js"></script>
+
+  </body>
+</html>
+

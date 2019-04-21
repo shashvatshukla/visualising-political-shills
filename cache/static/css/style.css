@@ -1,0 +1,132 @@
+/* Custom Stylesheet */
+/**
+ * Use this file to override Materialize files so you can update
+ * the core Materialize files in the future
+ *
+ * Made By MaterializeCSS.com
+ */
+
+nav ul a,
+nav .brand-logo {
+  color: #444;
+}
+
+p {
+  line-height: 2rem;
+}
+
+.sidenav-trigger {
+  color: #26a69a;
+}
+
+.parallax-container {
+  min-height: 380px;
+  line-height: 0;
+  height: auto;
+  color: rgba(255,255,255,.9);
+}
+  .parallax-container .section {
+    width: 100%;
+  }
+
+@media only screen and (max-width : 992px) {
+  .parallax-container .section {
+    position: absolute;
+    top: 40%;
+  }
+  #index-banner .section {
+    top: 10%;
+  }
+}
+
+@media only screen and (max-width : 600px) {
+  #index-banner .section {
+    top: 0;
+  }
+}
+
+.icon-block {
+  padding: 0 15px;
+}
+.icon-block .material-icons {
+  font-size: inherit;
+}
+
+footer.page-footer {
+  margin: 0;
+}
+
+.navbar-logo {
+  padding-left: 10%;
+}
+
+/* Change colour of the datepicker */
+
+.datepicker-date-display {
+  background-color: #1e88e5
+}
+
+.datepicker-day-button:focus {
+  color: white !important;
+  background-color: #1e88e5;
+}
+
+.datepicker-done,
+.datepicker-cancel,
+.select-dropdown li>span,
+.is-today {
+  color: #1e88e5 !important
+}
+
+
+td.is-selected,
+.month-prev:active,
+.month-prev:focus,
+.month-next:active,
+.month-next:focus {
+  background-color: #1e88e5 !important
+}
+
+td.is-selected.is-today {
+  color: white !important;
+
+}
+
+/* Change colour of the input field accents*/
+
+.input-field input[type=text]:focus+label,
+.materialize-textarea:focus:not([readonly])+label {
+  color: #1e88e5 !important;
+}
+
+.input-field input[type=text]:focus,
+.materialize-textarea:focus:not([readonly]) {
+  border-bottom: 1px solid #1e88e5 !important;
+  box-shadow: 0 1px 0 0 #1e88e5 !important;
+}
+
+.chips {
+  margin-right: 10.5px !important;
+  margin-left: 10.5px !important;
+}
+
+.chip:focus {
+  background-color: #1e88e5 !important; 
+}
+
+.chips.focus {
+  border-bottom: 1px solid #1e88e5 !important;
+}
+
+#chips_input {
+  padding-left: 0px !important;
+  padding-right: 0px !important;
+}
+
+.shadow {
+  text-shadow: 2px 2px 6px white;
+}
+
+::-webkit-input-placeholder{
+  color: #9e9e9e
+}
