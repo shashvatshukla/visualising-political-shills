@@ -58,6 +58,8 @@ class ShillAPI:
         """
         user = self._appauth_api.get_user(account)
         return dict({
+            "usr_id": user.id_str,
+            "screen_name": user.screen_name,
             "no_statuses": user.statuses_count,
             "no_followers": user.followers_count,
             "no_friends": user.friends_count,

@@ -5,7 +5,7 @@ import psycopg2
 from metrics.api_for_search import ShillSearchAPI
 from metrics.api_for_db import ShillDBAPI
 
-def add_to_db(usr_id, metadata, is_bot):
+def add_to_db(usr_id, screen_name, metadata, is_bot):
     """
     Adds the metadata of a user, along with the botometer result, to the database.
 
@@ -16,12 +16,15 @@ def add_to_db(usr_id, metadata, is_bot):
     """
     connection = psycopg2.connect(**consts.db_creds)
     cursor = connection.cursor()
-    insert = ''' INSERT INTO users
-                 (usr_id, no_statuses, no_followers, no_friends, no_favourites,
-                  no_listed, default_profile, geo_enabled, custom_bg_img,
-                  verified, protected, is_bot)
-                 VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s); '''
-    cursor.execute(insert, [str(usr_id)] + [str(value) for value in metadata] + [str(is_bot)])
+    insert_metadata = ''' INSERT INTO user_metadata
+                          (usr_id, screen_name, no_statuses, no_followers, no_friends, no_favourites,
+                           no_listed, default_profile, geo_enabled, custom_bg_img,
+                           verified, protected)
+                           VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s); '''
+    insert_bot_status = '''INSERT INTO user_bot_status (usr_id, is_bot)
+                           VALUES (%s, %s)'''
+    cursor.execute(insert_metadata, [str(usr_id), str(screen_name)] + [str(value) for value in metadata])
+    cursor.execute(insert_bot_status, [str(usr_id), str(is_bot)])
     connection.commit()
 
     

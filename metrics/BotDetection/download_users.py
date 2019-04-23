@@ -18,8 +18,9 @@ def create_db():
     """
     connection = psycopg2.connect(**consts.db_creds)
     cursor = connection.cursor()
-    create_table_1 = ''' CREATE TABLE users
+    create_table_1 = ''' CREATE TABLE user_metadata
                          (usr_id VARCHAR(22) PRIMARY KEY,
+                          screen_name VARCHAR(55),
                           no_statuses INTEGER,
                           no_followers INTEGER,
                           no_friends INTEGER,
@@ -29,13 +30,16 @@ def create_db():
                           geo_enabled BOOLEAN,
                           custom_bg_img BOOLEAN,
                           verified BOOLEAN,
-                          protected BOOLEAN,
-                          is_bot BOOLEAN); '''
+                          protected BOOLEAN); '''
     cursor.execute(create_table_1)
-    create_table_2 = ''' CREATE TABLE failed_users
+    create_table_2 = ''' CREATE TABLE user_bot_status
+                         (usr_id VARCHAR(22) PRIMARY KEY,
+                         is_bot BOOLEAN); '''
+    cursor.execute(create_table_2)
+    create_table_3 = ''' CREATE TABLE failed_users
                          (usr_id VARCHAR(22) PRIMARY KEY,
                           error_msg VARCHAR(200)); '''
-    cursor.execute(create_table_2)
+    cursor.execute(create_table_3)
     connection.commit()
 
 def get_record_from_dict(metadata):
@@ -98,7 +102,8 @@ def find_users(start, end, words, amount):
             which = False
             is_bot = search_api.is_bot(user, False)
             which = True
-            data = get_record_from_dict(search_api.get_metadata(user))
+            metadata_dict = search_api.get_metadata(user)
+            data = get_record_from_dict(metadata_dict)
         except tweepy.error.TweepError as tweep:
             print('')
             error_msg = ("Botometer Failure: " if which else "Metadata Failure: ") + str(tweep)
@@ -112,7 +117,7 @@ def find_users(start, end, words, amount):
             if count == amount:
                 break
             count += 1
-            add_to_db(user, data, is_bot)
+            add_to_db(user, metadata_dict["screen_name"], data, is_bot)
 
 
 start = "2017-11-01 06:00:37"

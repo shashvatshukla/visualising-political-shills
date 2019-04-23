@@ -82,17 +82,27 @@ def get_data():
     metadata_query = ''' SELECT * FROM users; '''
     cursor.execute(metadata_query)
     metadata = cursor.fetchall()
-    metadata = [[int(z) for z in i] for i in metadata]
-    print(metadata[0])
-    return metadata
+    is_bot_query = ''' SELECT usr_id, is_bot
+                       FROM   user_bot_status
+                       WHERE  usr_id = %s;'''
+    is_user_bot = []
+    missing_status = []
+    for i, row in enumerate(metadata):
+        cursor.execute(is_bot_query, [str(row[0])])
+        result = cursor.fetchall()
+        if len(result) > 0:
+            is_user_bot.append(result[0][1])
+        else:
+            missing_status.insert(0, i)
+    for i in missing_status:
+        del metadata[i]
+    metadata = [[int(z) for z in i[2:10]] for i in metadata]
+    return metadata, is_user_bot
 
 
-data = get_data()
-metadata = []
-is_user_bot = []
-for i in data:
-    metadata.append(i[1:9])
-    is_user_bot.append(i[11])
+metadata, is_user_bot = get_data()
+
+print(len(metadata), len(is_user_bot))
 
 original_metadata = metadata
 original_bot_data = is_user_bot

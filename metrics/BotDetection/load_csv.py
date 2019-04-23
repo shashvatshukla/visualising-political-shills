@@ -1,22 +1,18 @@
-import tweepy
-import consts
-import psycopg2
 import csv
 
-from metrics.api_for_search import ShillSearchAPI
-from metrics.api_for_db import ShillDBAPI
 from metrics.BotDetection.helper_functions import add_to_db, does_user_exist
 
 """
 Downloads the metadata of Twitter users, for training the logistic regression on.
 """
 
+
 def get_record_from_csv_row(keys, row):
     """
     Converts a row from the csv file to a metadata list, in the correct order to be added to the database by add_to_db.
 
     :param keys: The column titles
-    :param metadata: The users metadata, from a csv row
+    :param row: The users metadata, from a csv row
     :return: A metadata list
 
     """
@@ -32,6 +28,7 @@ def get_record_from_csv_row(keys, row):
             metadata.get("geo_enabled", False), metadata.get("profile_use_background_image", False), metadata.get("verified", False),
             metadata.get("protected", False)]
 
+
 def load_table(file_name, are_bots):
     file = open(file_name, encoding="utf-8")
     csv_reader = csv.reader(file, delimiter=',')
@@ -40,7 +37,7 @@ def load_table(file_name, are_bots):
         if does_user_exist(row[0]):
             continue
         metadata = get_record_from_csv_row(keys, row)
-        #print(metadata)
-        add_to_db(row[0], metadata, are_bots)
-        
-load_table("users.csv",True)
+        add_to_db(row[0], row[2], metadata, are_bots)
+
+
+load_table("users.csv", True)
