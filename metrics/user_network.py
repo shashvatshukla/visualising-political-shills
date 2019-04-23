@@ -102,7 +102,7 @@ def load_interactions(start):
 def load_interactions_continue_on_error(start):
     while True:
         try:
-            build_network(start)
+            load_interactions(start)
         except:
             print("ERROR")
 
