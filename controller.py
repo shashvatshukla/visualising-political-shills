@@ -21,6 +21,7 @@ app = Flask(__name__)
 
 class Metrics:
     def __init__(self):
+        self.tweets = None
         self.traffic_increase_plot = None
         self.coeff_dictionary = None
         self.avg_tweets = None
@@ -56,20 +57,21 @@ def second():
                                                         "%Y-%m-%d %H:%M:%S")
 
         shill_api = api.ShillDBAPI(**consts.shill_api_creds)
-        tweets = shill_api.get_tweets(start_date_timestamp, end_date_timestamp,
-                                     hashtags)
+        metrics_data.tweets = shill_api.get_tweets(start_date_timestamp,
+                                                   end_date_timestamp,
+                                                   hashtags)
         metrics_data.traffic_increase_plot = traffic.graph_traffic_and_spikes(
-            tweets, start_date, end_date, 60)
+            metrics_data.tweets, start_date, end_date, 60)
         metrics_data.similar_text = simtex.cluster_tweets_by_text(shill_api, 4)
 
-        if len(tweets) == 0:
+        if len(metrics_data.tweets) == 0:
             metrics_data.coeff_dictionary = "No tweets found"
             metrics_data.avg_tweets = "No tweets found"
             metrics_data.traffic_top_users = "No tweets found"
             metrics_data.retweets = "No tweets found"
             metrics_data.coefficient = "No tweets found"
         else:
-            metrics_data.coeff_dictionary = coeff.coefficient(tweets)
+            metrics_data.coeff_dictionary = coeff.coefficient(metrics_data.tweets)
             metrics_data.coefficient = metrics_data.coeff_dictionary.get(
                 "Coefficient of traffic manipulation")
             metrics_data.avg_tweets = metrics_data.coeff_dictionary.get(
@@ -127,55 +129,50 @@ def metric2():
 
 @app.route('/metric3', methods=['GET'])
 def metric3():
-    def flatten(l):
-        return list(chain.from_iterable(l))
+    def priority(occ):
+        if occ <= 5:
+            return "green"
+        elif occ <= 10:
+            return "yellow"
+        else:
+            return "red"
 
-    def format_box(text):
-        splitted = text.split(' ')
-        formatted = '<br>'.join([' '.join(splitted[idx:idx + 10])
-                                 for idx in range(0, len(splitted), 10)])
-        return formatted
+    html = """<ul class="collapsible">"""
+    exist = False
+    for cluster in sorted(metrics_data.similar_text,
+                          key=lambda cluster: cluster['occurrences'],
+                          reverse=True):
+        similar_or_exact = simtex.get_similar_tweets_to(cluster['text'],
+                                                        metrics_data.tweets)
+        if similar_or_exact == []:
+            continue
 
-    clusters_len = len(metrics_data.similar_text)
-    clusters_range = range(clusters_len)
+        exist = True
+        suspicious = [s['usr'] for s in similar_or_exact]
 
-    similar_text_data = [
-    {
-        'x': flatten([list(range(10)) for _ in clusters_range][:clusters_len]),
-        'y': flatten([[idx * 10]*10 for idx in clusters_range][:clusters_len]),
-        'mode': 'markers',
-        'marker': {
-            'color': [metrics_data.similar_text[idx]['occurrences']
-                      for idx in clusters_range],
-            'size': [metrics_data.similar_text[idx]['occurrences'] % 50 + 1
-                     for idx in clusters_range],
-            'showscale': True
-        },
-        'text': ['Text: ' +
-                 format_box(str(metrics_data.similar_text[idx]['text'])) +
-                 '<br>Occurences: ' +
-                 str(metrics_data.similar_text[idx]['occurrences'])
-                 for idx in clusters_range],
-        'hoverinfo': 'text'
-    }]
-    similar_text_layout = go.Layout(
-        title='Similar text clusters',
-        hovermode='closest',
-        xaxis=dict(autorange=True, showgrid=False, zeroline=False,
-                   showline=False, ticks='', showticklabels=False),
-        yaxis=dict(autorange=True, showgrid=False, zeroline=False,
-                   showline=False, ticks='', showticklabels=False),
-        showlegend=False
-    )
-    similar_text_fig = go.Figure(data=similar_text_data,
-                                 layout=similar_text_layout)
+        html += """<li>
+                        <div class="collapsible-header">
+                        <i class="material-icons %s-text">priority_high</i>
+                        Text: %s <br>
+                        Occurrences: %s
+                        </div>
+                        
+                        <div class="collapsible-body">
+                        <span>
+                            Accounts that sent this message or variants:<br>
+                            %s
+                        </span>
+                        </div>
+                </li>""" % (priority(cluster['occurrences']),
+                            cluster['text'], cluster['occurrences'],
+                            suspicious)
+    html += """</ul>"""
 
-    similar_text_bubble = py.plot(similar_text_fig,
-                                  filename='scatter-colorscale',
-                                  output_type='div')
+    if not exist:
+        html = "No clusters detected!"
 
     return render_template('metric3.html',
-                           similar_text_bubble=Markup(similar_text_bubble))
+                           similar_text_bubble=Markup(html))
 
 @app.route('/download')
 def download():
@@ -192,6 +189,7 @@ def download():
                 zf.write(f)
         memory_file.seek(0)
 
-        return send_file(memory_file, attachment_filename='static_cache.zip', as_attachment=True)
+        return send_file(memory_file, attachment_filename='static_cache.zip',
+                         as_attachment=True)
     except:
-        return("Something went wrong")
+        return "Something went wrong"

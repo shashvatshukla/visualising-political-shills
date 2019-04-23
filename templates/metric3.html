@@ -10,6 +10,10 @@
     <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
     <link rel="stylesheet" href="https://code.getmdl.io/1.3.0/material.cyan-light_blue.min.css">
     <link rel="stylesheet" href="../static/css/analysis_page_styles.css">
+    <link href="../static/css/materialize.css" type="text/css" rel="stylesheet" media="screen,projection"/>
+
+    <script src="../static/js/materialize.js"></script>
+
     <style>
         #view-source {
             position: fixed;
@@ -21,6 +25,13 @@
             z-index: 900;
         }
     </style>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var elems = document.querySelectorAll('.collapsible');
+            var instances = M.Collapsible.init(elems);
+        });
+    </script>
 </head>
 <body>
 <div class="mdl-layout mdl-js-layout mdl-layout--fixed-header">
