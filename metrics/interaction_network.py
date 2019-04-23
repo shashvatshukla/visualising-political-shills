@@ -109,7 +109,7 @@ def load_interactions_continue_on_error(start):
         try:
             load_interactions(start)
         except:
-            print("ERROR")#
+            print("ERROR")
 
 
 load_interactions(0)
