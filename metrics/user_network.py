@@ -7,7 +7,7 @@ def create_db():
     """
     Creates the databases for user interactions
 
-    :NETWORK:
+    :INTERACTIONS:
     :usr: The id of the user that performed the interaction
     :other_usr: The id of the user that was interacted with
     :interaction: The type of interaction (retweet, mention, reply)
@@ -20,7 +20,7 @@ def create_db():
     """
     connection = psycopg2.connect(**consts.db_creds)
     cursor = connection.cursor()
-    create_table_1 = ''' CREATE TABLE network
+    create_table_1 = ''' CREATE TABLE interactions
                          (id SERIAL PRIMARY KEY,
                           usr VARCHAR(22),
                           other_usr VARCHAR(22),
@@ -35,10 +35,10 @@ def create_db():
     connection.commit()
 
 
-def add_link(usr, other_usr, interaction):
+def add_interaction(usr, other_usr, interaction):
     connection = psycopg2.connect(**consts.db_creds)
     cursor = connection.cursor()
-    insert = ''' INSERT INTO network
+    insert = ''' INSERT INTO interactions
                      (usr, other_usr, interaction, topic_code)
                      VALUES (%s, %s, %s, 'test'); '''
     cursor.execute(insert, [usr, other_usr, interaction])
@@ -55,7 +55,7 @@ def add_lookup(cache, usr, screen_name, interaction):
         ids = api.get_ids(screen_names)
         for i in range(len(ids)):
             if ids[i]:
-                add_link(cache[i][0], ids[i], cache[i][2])
+                add_interaction(cache[i][0], ids[i], cache[i][2])
         cache.clear()
         print(completed)
 
@@ -63,7 +63,7 @@ def add_lookup(cache, usr, screen_name, interaction):
 completed = 0
 
 
-def build_network(start):
+def load_interactions(start):
     global completed
     connection = psycopg2.connect(**consts.db_creds)
     cursor = connection.cursor()
@@ -99,7 +99,7 @@ def build_network(start):
         previous += len(tweets)
 
 
-def build_network_continue_on_error(start):
+def load_interactions_continue_on_error(start):
     while True:
         try:
             build_network(start)
@@ -107,5 +107,5 @@ def build_network_continue_on_error(start):
             print("ERROR")
 
 
-build_network_continue_on_error(0)
+load_interactions_continue_on_error(0)
 print("Checked: ", completed)
