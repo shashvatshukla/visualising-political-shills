@@ -25,6 +25,7 @@ def create_db():
                           usr VARCHAR(22),
                           other_usr VARCHAR(22),
                           interaction VARCHAR(22),
+                          time TIMESTAMP NOT NULL,
                           topic_code VARCHAR(22)); '''
     cursor.execute(create_table_1)
     create_table_2 = ''' CREATE TABLE topics
@@ -35,27 +36,27 @@ def create_db():
     connection.commit()
 
 
-def add_interaction(usr, other_usr, interaction):
+def add_interaction(usr, other_usr, interaction, time):
     connection = psycopg2.connect(**consts.db_creds)
     cursor = connection.cursor()
     insert = ''' INSERT INTO interactions
-                     (usr, other_usr, interaction, topic_code)
-                     VALUES (%s, %s, %s, 'test'); '''
-    cursor.execute(insert, [usr, other_usr, interaction])
+                     (usr, other_usr, interaction, time, topic_code)
+                     VALUES (%s, %s, %s, %s, 'test'); '''
+    cursor.execute(insert, [usr, other_usr, interaction, time])
     connection.commit()
 
 
 api = ShillSearchAPI.create_API()
 
 
-def add_lookup(cache, usr, screen_name, interaction):
-    cache.append((usr, screen_name, interaction))
+def add_lookup(cache, usr, screen_name, interaction, time):
+    cache.append((usr, screen_name, interaction, time))
     if len(cache) == 100:
         screen_names = [i[1] for i in cache]
         ids = api.get_ids(screen_names)
         for i in range(len(ids)):
             if ids[i]:
-                add_interaction(cache[i][0], ids[i], cache[i][2])
+                add_interaction(cache[i][0], ids[i], cache[i][2], cache[i][3])
         cache.clear()
         print(completed)
 
@@ -74,7 +75,11 @@ def load_interactions(start):
     while len(tweets) > 0:
         tweets = cursor.fetchall()
         cache = []
+        if previous < start:
+            continue
         for i in range(start, len(tweets)):
+            if previous + i < start:
+                continue
             tweet = tweets[i]
             users = tweet[2].split(' ')
             if tweet[6]:
@@ -82,19 +87,19 @@ def load_interactions(start):
                 retweet_len = len(tweet[2].split(":")[0])
                 users = tweet[2][retweet_len:].split(' ')
                 other_usr = tweet[2].split(":")[0][4:]
-                add_lookup(cache, usr, other_usr, "retweet")
+                add_lookup(cache, usr, other_usr, "retweet", tweet[1])
             elif tweet[2][0] == '@':
                 reply_count = 0  # The number of users the tweet is replying to
-                for i in range(len(users)):
-                    if len(users[i]) > 0 and users[i][0] != '@':
-                        reply_count = i
+                for z in range(len(users)):
+                    if len(users[z]) > 0 and users[z][0] != '@':
+                        reply_count = z
                         break
                 for other_usr in users[:reply_count]:
-                    add_lookup(cache, tweet[3], other_usr[1:], "reply")
+                    add_lookup(cache, tweet[3], other_usr[1:], "reply", tweet[1])
                 users = users[reply_count:]
             for other_usr in users:
                 if len(other_usr) > 0 and other_usr[0] == '@':
-                    add_lookup(cache, tweet[3], other_usr[1:], "mention")
+                    add_lookup(cache, tweet[3], other_usr[1:], "mention", tweet[1])
             completed = previous + i + 1
         previous += len(tweets)
 
@@ -104,8 +109,7 @@ def load_interactions_continue_on_error(start):
         try:
             load_interactions(start)
         except:
-            print("ERROR")
+            print("ERROR")#
 
 
-load_interactions_continue_on_error(0)
-print("Checked: ", completed)
+load_interactions(0)
