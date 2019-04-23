@@ -1,8 +1,6 @@
 import psycopg2
 import consts
-import tweepy
 from metrics.api_for_search import ShillSearchAPI
-import tweepy.api
 
 
 def create_db():
@@ -37,11 +35,7 @@ def create_db():
     connection.commit()
 
 
-appended = 0
-
-
 def add_link(usr, other_usr, interaction):
-    global appended
     connection = psycopg2.connect(**consts.db_creds)
     cursor = connection.cursor()
     insert = ''' INSERT INTO network
@@ -49,7 +43,6 @@ def add_link(usr, other_usr, interaction):
                      VALUES (%s, %s, %s, 'test'); '''
     cursor.execute(insert, [usr, other_usr, interaction])
     connection.commit()
-    appended += 1
 
 
 api = ShillSearchAPI.create_API()
@@ -64,7 +57,7 @@ def add_lookup(cache, usr, screen_name, interaction):
             if ids[i]:
                 add_link(cache[i][0], ids[i], cache[i][2])
         cache.clear()
-        print(appended)
+        print(completed)
 
 
 completed = 0
@@ -76,39 +69,42 @@ def build_network(start):
     cursor = connection.cursor()
     tweets_query = ''' SELECT * FROM tweets; '''
     cursor.execute(tweets_query)
-    tweets = cursor.fetchall()
-    cache = []
-    for i in range(start, len(tweets)):
-        tweet = tweets[i]
-        # print(cache)
-        users = tweet[2].split(' ')
-        if tweet[6]:
-            usr = tweet[3]
-            retweet_len = len(tweet[2].split(":")[0])
-            users = tweet[2][retweet_len:].split(' ')
-            other_usr = tweet[2].split(":")[0][4:]
-            add_lookup(cache, usr, other_usr, "retweet")
-        elif tweet[2][0] == '@':
-            reply_count = 0  # The number of users the tweet is replying to
-            for i in range(len(users)):
-                if len(users[i]) > 0 and users[i][0] != '@':
-                    reply_count = i
-                    break
-            for other_usr in users[:reply_count]:
-                add_lookup(cache, tweet[3], other_usr[1:], "reply")
-            users = users[reply_count:]
-        for other_user in users:
-            if len(other_user) > 0 and other_user[0] == '@':
-                add_lookup(cache, tweet[3], other_usr[1:], "mention")
-        completed = i + 1
+    tweets = [None]
+    previous = 0
+    while len(tweets) > 0:
+        tweets = cursor.fetchall()
+        cache = []
+        for i in range(start, len(tweets)):
+            tweet = tweets[i]
+            users = tweet[2].split(' ')
+            if tweet[6]:
+                usr = tweet[3]
+                retweet_len = len(tweet[2].split(":")[0])
+                users = tweet[2][retweet_len:].split(' ')
+                other_usr = tweet[2].split(":")[0][4:]
+                add_lookup(cache, usr, other_usr, "retweet")
+            elif tweet[2][0] == '@':
+                reply_count = 0  # The number of users the tweet is replying to
+                for i in range(len(users)):
+                    if len(users[i]) > 0 and users[i][0] != '@':
+                        reply_count = i
+                        break
+                for other_usr in users[:reply_count]:
+                    add_lookup(cache, tweet[3], other_usr[1:], "reply")
+                users = users[reply_count:]
+            for other_usr in users:
+                if len(other_usr) > 0 and other_usr[0] == '@':
+                    add_lookup(cache, tweet[3], other_usr[1:], "mention")
+            completed = previous + i + 1
+        previous += len(tweets)
 
 
 def build_network_continue_on_error(start):
     while True:
         try:
-            build_network(0)
+            build_network(start)
         except:
-            pass
+            print("ERROR")
 
 
 build_network_continue_on_error(0)
