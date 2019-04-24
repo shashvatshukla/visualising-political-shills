@@ -72,26 +72,39 @@ class ShillAPI:
             "protected": user.protected
         })
 
-    def get_ids(self, screen_names):
+    def get_batch_metadata(self, screen_names):
         """
-        Return a list of user ids, given a list of screen names
+        Return a list of users given a list of screen names
 
         :parameter screen_names: names of the accounts, ie. [realDonaldTrump]
-        :return: list containing the user ids.
+        :return: list containing the users.
 
         """
         users = self._appauth_api.lookup_users(screen_names=screen_names)
-        ids = []
+        user_data = []
         current_user = 0
         for i in range(len(screen_names)):
             if users[current_user].screen_name.lower() == screen_names[i].lower():
-                ids.append(users[current_user].id_str)
+                user_data.append({
+                                 "usr_id": users[current_user].id_str,
+                                 "screen_name": users[current_user].screen_name,
+                                 "no_statuses": users[current_user].statuses_count,
+                                 "no_followers": users[current_user].followers_count,
+                                 "no_friends": users[current_user].friends_count,
+                                 "no_favourites": users[current_user].favourites_count,
+                                 "no_listed": users[current_user].listed_count,
+                                 "default_profile": users[current_user].default_profile,
+                                 "geo_enabled": users[current_user].geo_enabled,
+                                 "custom_bg_img": users[current_user].profile_use_background_image,
+                                 "verified": users[current_user].verified,
+                                 "protected": users[current_user].protected
+                                 })
                 current_user += 1
                 if len(users) == current_user:
                     break
             else:
-                ids.append(None)
-        return ids
+                user_data.append(None)
+        return user_data
 
     def get_tweets(self, start, end, words, with_rt=True):
         """

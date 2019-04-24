@@ -1,17 +1,29 @@
-import tweepy
 import consts
 import psycopg2
 
-from metrics.api_for_search import ShillSearchAPI
-from metrics.api_for_db import ShillDBAPI
 
-def add_to_db(usr_id, screen_name, metadata, is_bot):
+def get_record_from_dict(metadata):
+    """
+    Converts a metadata dictionary to a list, in the correct order to be added to the database by add_to_db.
+
+    :param metadata: The metadata dictionary
+    :return: A metadata list
+
+    """
+    return [metadata["no_statuses"], metadata["no_followers"], metadata["no_friends"],
+            metadata["no_favourites"], metadata["no_listed"], metadata["default_profile"],
+            metadata["geo_enabled"], metadata["custom_bg_img"], metadata["verified"],
+            metadata["protected"]]
+
+
+def add_to_db(usr_id, screen_name, metadata, is_bot=None):
     """
     Adds the metadata of a user, along with the botometer result, to the database.
 
     :param usr_id: The Twitter user id
+    :param screen_name: The Twitter user screen name
     :param metadata: The users metadata
-    :param is_bot: The botometer result for the user
+    :param is_bot: The botometer result for the user, leave as None is the result is unknown
 
     """
     connection = psycopg2.connect(**consts.db_creds)
@@ -21,10 +33,11 @@ def add_to_db(usr_id, screen_name, metadata, is_bot):
                            no_listed, default_profile, geo_enabled, custom_bg_img,
                            verified, protected)
                            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s); '''
-    insert_bot_status = '''INSERT INTO user_bot_status (usr_id, is_bot)
-                           VALUES (%s, %s)'''
     cursor.execute(insert_metadata, [str(usr_id), str(screen_name)] + [str(value) for value in metadata])
-    cursor.execute(insert_bot_status, [str(usr_id), str(is_bot)])
+    if is_bot is not None:
+        insert_bot_status = '''INSERT INTO user_bot_status (usr_id, is_bot)
+                               VALUES (%s, %s)'''
+        cursor.execute(insert_bot_status, [str(usr_id), str(is_bot)])
     connection.commit()
 
     

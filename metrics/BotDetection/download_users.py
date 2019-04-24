@@ -4,7 +4,7 @@ import psycopg2
 
 from metrics.api_for_search import ShillSearchAPI
 from metrics.api_for_db import ShillDBAPI
-from metrics.BotDetection.helper_functions import add_to_db, does_user_exist
+from metrics.BotDetection.helper_functions import add_to_db, does_user_exist, get_record_from_dict
 
 """
 Downloads the metadata of Twitter users, for training the logistic regression on.
@@ -41,19 +41,6 @@ def create_db():
                           error_msg VARCHAR(200)); '''
     cursor.execute(create_table_3)
     connection.commit()
-
-def get_record_from_dict(metadata):
-    """
-    Converts a metadata dictionary to a list, in the correct order to be added to the database by add_to_db.
-
-    :param metadata: The metadata dictionary
-    :return: A metadata list
-
-    """
-    return [metadata["no_statuses"], metadata["no_followers"], metadata["no_friends"],
-            metadata["no_favourites"], metadata["no_listed"], metadata["default_profile"],
-            metadata["geo_enabled"], metadata["custom_bg_img"], metadata["verified"],
-            metadata["protected"]]
 
 
 def fail_user(user, error_msg):

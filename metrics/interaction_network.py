@@ -1,6 +1,9 @@
 import psycopg2
 import consts
+import re
+
 from metrics.api_for_search import ShillSearchAPI
+from metrics.BotDetection.helper_functions import get_record_from_dict, add_to_db
 
 
 def create_db():
@@ -50,15 +53,28 @@ api = ShillSearchAPI.create_API()
 
 
 def add_lookup(cache, usr, screen_name, interaction, time):
-    cache.append((usr, screen_name, interaction, time))
-    if len(cache) == 100:
-        screen_names = [i[1] for i in cache]
-        ids = api.get_ids(screen_names)
-        for i in range(len(ids)):
-            if ids[i]:
-                add_interaction(cache[i][0], ids[i], cache[i][2], cache[i][3])
-        cache.clear()
-        print(completed)
+    connection = psycopg2.connect(**consts.db_creds)
+    cursor = connection.cursor()
+    find_user = ''' SELECT * 
+                    FROM user_metadata
+                    WHERE UPPER(screen_name) = %s '''
+    cursor.execute(find_user, [screen_name.upper()])
+    connection.commit()
+
+    user_data = cursor.fetchall()
+    if len(user_data) > 0:
+        add_interaction(usr, user_data[0][0], interaction, time)
+    else:
+        cache.append((usr, screen_name, interaction, time))
+        if len(cache) == 100:
+            screen_names = [i[1] for i in cache]
+            user_data = api.get_batch_metadata(screen_names)
+            for i, user in enumerate(user_data):
+                if user:
+                    add_interaction(cache[i][0], user["usr_id"], cache[i][2], cache[i][3])
+                    add_to_db(user["usr_id"], user["screen_name"], get_record_from_dict(user))
+            cache.clear()
+            print(completed)
 
 
 completed = 0
@@ -75,17 +91,20 @@ def load_interactions(start):
     while len(tweets) > 0:
         tweets = cursor.fetchall()
         cache = []
-        if previous < start:
+        if previous + len(tweets) < start:
+            previous += len(tweets)
             continue
         for i in range(start, len(tweets)):
             if previous + i < start:
                 continue
-            tweet = tweets[i]
-            users = tweet[2].split(' ')
+            tweet = list(tweets[i])
+            tweet[2] = re.sub('[^0-9a-zA-Z_:@]+', ' ', tweet[2])
+            #print(tweet[2])
+            users = re.split(' :', tweet[2])
             if tweet[6]:
                 usr = tweet[3]
                 retweet_len = len(tweet[2].split(":")[0])
-                users = tweet[2][retweet_len:].split(' ')
+                users = re.split(' :', tweet[2][retweet_len:])
                 other_usr = tweet[2].split(":")[0][4:]
                 add_lookup(cache, usr, other_usr, "retweet", tweet[1])
             elif tweet[2][0] == '@':
@@ -105,11 +124,13 @@ def load_interactions(start):
 
 
 def load_interactions_continue_on_error(start):
+    global completed
+    completed = start
     while True:
         try:
-            load_interactions(start)
-        except:
-            print("ERROR")
+            load_interactions(completed)
+        except Exception as e:
+            print(e)
 
 
-load_interactions(0)
+load_interactions_continue_on_error(0)
