@@ -116,7 +116,7 @@ def train_model():
     result = logit_model.fit()
     print(result.summary2())
     validate(original_metadata, original_bot_data, result)
-    return logit_model
+    return result
 
 
 def save_model():
@@ -128,7 +128,7 @@ def save_model():
 def load_model():
     global logit_model
     f = open("logit_model.sm","rb")
-    pickle.load(logit_model, f)
+    logit_model = pickle.load(f)
 
 
 def classify(metadata):
