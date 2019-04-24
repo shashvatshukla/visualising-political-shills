@@ -68,7 +68,7 @@ def _spikes_in_traffic(times, bins, pct_change_threshold):
     return (spikes_bins, spikes_counts) 
         
 
-def graph_tweets_by_time(tweets, start_datetime, end_datetime, width, pct_change_threshold = 400):
+def graph_traffic_and_spikes(tweets, start_datetime, end_datetime, width, pct_change_threshold = 400):
     """
      Displays a histogram of the number of tweets created in each subinterval of 'width' minutes over the time interval input by the user, as well as the spikes in traffic.
      
@@ -120,5 +120,4 @@ def graph_tweets_by_time(tweets, start_datetime, end_datetime, width, pct_change
     layout = go.Layout(barmode='overlay')
     fig = go.Figure(data=data, layout=layout)
 
-    #return(py.plot(fig, output_type = 'div'))
-    py.plot(fig, filename = "test.html")
+    return(py.plot(fig, output_type = 'div'))
