@@ -2,10 +2,13 @@ import statsmodels.api as sm
 import consts
 import psycopg2
 import random
+import pickle
 
 """
 Functions from loading the data from the Fake Project csv files
 """
+
+logit_model = None
 
 
 def validate(metadata, is_user_bot, model):
@@ -100,15 +103,35 @@ def get_data():
     return metadata, is_user_bot
 
 
-metadata, is_user_bot = get_data()
+def train_model():
+    metadata, is_user_bot = get_data()
 
-print(len(metadata), len(is_user_bot))
+    print(len(metadata), len(is_user_bot))
 
-original_metadata = metadata
-original_bot_data = is_user_bot
-metadata, is_user_bot = balance(metadata, is_user_bot)
+    original_metadata = metadata
+    original_bot_data = is_user_bot
+    metadata, is_user_bot = balance(metadata, is_user_bot)
 
-logit_model = sm.Logit(is_user_bot, metadata)
-result = logit_model.fit()
-print(result.summary2())
-validate(original_metadata, original_bot_data, result)
+    logit_model = sm.Logit(is_user_bot, metadata)
+    result = logit_model.fit()
+    print(result.summary2())
+    validate(original_metadata, original_bot_data, result)
+    return logit_model
+
+
+def save_model():
+    logit_model = train_model()
+    f = open("logit_model.sm","wb")
+    pickle.dump(logit_model, f)
+
+
+def load_model():
+    global logit_model
+    f = open("logit_model.sm","rb")
+    pickle.load(logit_model, f)
+
+
+def classify(metadata):
+    if logit_model is None:
+        load_model()
+    return logit_model.predict(metadata)[0] > 0.5
