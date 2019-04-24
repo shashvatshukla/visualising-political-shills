@@ -57,13 +57,14 @@ def get_partition(users_list):
     laplacian = incidence.transpose()*incidence
     w, v = eigs(laplacian)
     inds = np.argsort(np.real(w))
-    partition = []
-    for i in v[:, inds[1]]:
-        if i > 0:
-            partition.append(True)
+    group1 = []
+    group2 = []
+    for i, value in enumerate(v[:, inds[1]]):
+        if value > 0:
+            group1.append(users_list[i])
         else:
-            partition.append(False)
-    return partition
+            group2.append(users_list[i])
+    return group1, group2
 
 
 get_partition(sorted(get_users()))
