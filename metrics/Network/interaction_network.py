@@ -5,6 +5,8 @@ import re
 from metrics.api_for_search import ShillSearchAPI
 from metrics.BotDetection.helper_functions import get_record_from_dict, add_to_db
 
+connection = psycopg2.connect(**consts.db_creds)
+
 
 def create_db():
     """
@@ -40,7 +42,6 @@ def create_db():
 
 
 def add_interaction(usr, other_usr, interaction, time):
-    connection = psycopg2.connect(**consts.db_creds)
     cursor = connection.cursor()
     insert = ''' INSERT INTO interactions
                      (usr, other_usr, interaction, time, topic_code)
@@ -53,7 +54,6 @@ api = ShillSearchAPI.create_API()
 
 
 def add_lookup(cache, usr, screen_name, interaction, time):
-    connection = psycopg2.connect(**consts.db_creds)
     cursor = connection.cursor()
     find_user = ''' SELECT * 
                     FROM user_metadata
@@ -82,7 +82,6 @@ completed = 0
 
 def load_interactions(start):
     global completed
-    connection = psycopg2.connect(**consts.db_creds)
     cursor = connection.cursor()
     tweets_query = ''' SELECT * FROM tweets; '''
     cursor.execute(tweets_query)
