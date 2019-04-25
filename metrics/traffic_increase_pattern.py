@@ -111,7 +111,7 @@ def graph_traffic_and_spikes(tweets, start_datetime, end_datetime, width, pct_ch
         y = list(map(lambda b: b + 1, spikes_counts)),
         hoverinfo = "text",
         hovertext = list(map(str, spikes_counts)),
-        marker = dict(color = '#BE5057', symbol='star-triangle-down', size = width/2),
+        marker = dict(color = '#BE5057', symbol='triangle-down', size = width),
         mode = 'markers',
         name = "Spikes"           
         )
