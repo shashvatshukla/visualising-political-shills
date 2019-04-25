@@ -61,7 +61,7 @@ def second():
                                                    end_date_timestamp,
                                                    hashtags)
         metrics_data.traffic_increase_plot = traffic.graph_traffic_and_spikes(
-            metrics_data.tweets, start_date, end_date, 60)
+            metrics_data.tweets, start_date, end_date, 20)
         metrics_data.similar_text = simtex.cluster_tweets_by_text(shill_api, 4)
 
         if len(metrics_data.tweets) == 0:
