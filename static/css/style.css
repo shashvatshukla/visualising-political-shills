@@ -130,3 +130,10 @@ td.is-selected.is-today {
 ::-webkit-input-placeholder{
   color: #9e9e9e
 }
+
+.center {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  width: 50%;
+}
