@@ -121,13 +121,13 @@ def train_model():
 
 def save_model():
     logit_model = train_model()
-    f = open("logit_model.sm","wb")
+    f = open("logit_model.sm", "wb")
     pickle.dump(logit_model, f)
 
 
 def load_model():
     global logit_model
-    f = open("logit_model.sm","rb")
+    f = open(r"C:\Users\danie\git\visualising-political-shills\metrics\BotDetection\logit_model.sm", "rb")
     logit_model = pickle.load(f)
 
 
