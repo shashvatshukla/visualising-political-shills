@@ -1,6 +1,8 @@
 import consts
 import psycopg2
 
+connection = psycopg2.connect(**consts.db_creds)
+
 
 def get_record_from_dict(metadata):
     """
@@ -26,7 +28,6 @@ def add_to_db(usr_id, screen_name, metadata, is_bot=None):
     :param is_bot: The botometer result for the user, leave as None is the result is unknown
 
     """
-    connection = psycopg2.connect(**consts.db_creds)
     cursor = connection.cursor()
     insert_metadata = ''' INSERT INTO user_metadata
                           (usr_id, screen_name, no_statuses, no_followers, no_friends, no_favourites,
