@@ -1,8 +1,12 @@
 import botometer
+import psycopg2
+import consts
 from tweepy import API
 from tweepy import AppAuthHandler
 from tweepy import OAuthHandler
 from tweepy import Cursor
+
+from metrics.BotDetection.helper_functions import add_to_db, get_record_from_dict
 
 """
 A very basic (right now) API that we will use to interact with different tools 
@@ -48,16 +52,43 @@ class ShillAPI:
         self._mentions_threshold = 100
         self._bot_threshold = 0.6
 
-    def get_metadata(self, account):
+        # Establish connection to db
+        self.connection = psycopg2.connect(**consts.db_creds)
+        self.cursor = self.connection.cursor()
+
+    def get_metadata(self, account, check_cache=False, cache_result=False):
         """
         Return user metadata, could be used for bot detection or just metrics
 
         :parameter account: name of the account, ie. realDonaldTrump
+        :parameter check_cache: If True, search for the user in thr db before checking Twitter
+        :parameter cache_result: If True, store the result in the db
         :return: dictionary containing user metadata values.
 
         """
+        if check_cache:
+            select_user = """SELECT *
+                             FROM user_metadata
+                             WHERE usr_id = %s OR screen_name = %s"""
+            self.cursor.execute(select_user, [account, account])
+            result = self.cursor.fetchall()
+            if len(result) > 0:
+                return {
+                    "usr_id": result[0][0],
+                    "screen_name": result[0][1],
+                    "no_statuses": result[0][2],
+                    "no_followers": result[0][3],
+                    "no_friends": result[0][4],
+                    "no_favourites": result[0][5],
+                    "no_listed": result[0][6],
+                    "default_profile": result[0][7],
+                    "geo_enabled": result[0][8],
+                    "custom_bg_img": result[0][9],
+                    "verified": result[0][10],
+                    "protected": result[0][11]
+                }
         user = self._appauth_api.get_user(account)
-        return dict({
+        return_dict = {
             "usr_id": user.id_str,
             "screen_name": user.screen_name,
             "no_statuses": user.statuses_count,
@@ -70,7 +101,10 @@ class ShillAPI:
             "custom_bg_img": user.profile_use_background_image,
             "verified": user.verified,
             "protected": user.protected
-        })
+        }
+        if cache_result:
+            add_to_db(user.id_str, user.screen_name, get_record_from_dict(return_dict))
+        return return_dict
 
     def get_batch_metadata(self, screen_names):
         """

@@ -22,9 +22,6 @@ class ShillDBAPI(ShillAPI):
         super().__init__(consumer_key, consumer_secret, access_token,
                          access_token_secret, botometer_key)
 
-        # Establish connection
-        self.connection = psycopg2.connect(**consts.db_creds)
-        self.cursor = self.connection.cursor()
 
     def __del__(self):
         self.connection.close()
