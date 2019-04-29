@@ -38,7 +38,8 @@ def _spikes_in_traffic(times, bins, pct_change_threshold):
     
     :return: A list of (datetime, int) pairs representing the time periods when there were spikes in traffic, together with the number of tweets over that period.
     """
-    
+
+    times = sorted(times)
     tweet_timestamps = list(map(datetime.datetime.timestamp, times))
     bins_as_timestamps = list(map(datetime.datetime.timestamp, bins))
 
@@ -81,6 +82,7 @@ def graph_traffic_and_spikes(tweets, start_datetime, end_datetime, width, pct_ch
     :return: A call to plotly.offline.plot that will graph the traffic over time, with the spike points highlighted. 
     """
     times = _tweet_times(tweets)
+    times = sorted(times)
     endtime = datetime.datetime.strptime(end_datetime, "%Y-%m-%d %H:%M:%S")
     starttime = datetime.datetime.strptime(start_datetime, "%Y-%m-%d %H:%M:%S")
 
@@ -111,7 +113,7 @@ def graph_traffic_and_spikes(tweets, start_datetime, end_datetime, width, pct_ch
         y = list(map(lambda b: b + 1, spikes_counts)),
         hoverinfo = "text",
         hovertext = list(map(str, spikes_counts)),
-        marker = dict(color = '#BE5057', symbol='triangle-down', size = width/2),
+        marker = dict(color = '#BE5057', symbol='star-triangle-down', size = width/2),
         mode = 'markers',
         name = "Spikes"           
         )
