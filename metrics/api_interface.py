@@ -106,19 +106,28 @@ class ShillAPI:
             add_to_db(user.id_str, user.screen_name, get_record_from_dict(return_dict))
         return return_dict
 
-    def get_batch_metadata(self, screen_names):
+    def get_batch_metadata(self, screen_names=None, user_ids=None):
         """
         Return a list of users given a list of screen names
 
         :parameter screen_names: names of the accounts, ie. [realDonaldTrump]
+        :parameter user_ids: user ids of the accounts
         :return: list containing the users.
 
         """
-        users = self._appauth_api.lookup_users(screen_names=screen_names)
+        if screen_names is not None:
+            input_size = len(screen_names)
+            users = self._appauth_api.lookup_users(screen_names=screen_names)
+        elif user_ids is not None:
+            input_size = len(user_ids)
+            users = self._appauth_api.lookup_users(user_ids=user_ids)
+        else:
+            raise ValueError("At least one of screen_names or user_ids must be given")
         user_data = []
         current_user = 0
-        for i in range(len(screen_names)):
-            if users[current_user].screen_name.lower() == screen_names[i].lower():
+        for i in range(input_size):
+            if (screen_names is not None and users[current_user].screen_name.lower() == screen_names[i].lower()) or\
+                    users[current_user].id_str == user_ids[i]:
                 user_data.append({
                                  "usr_id": users[current_user].id_str,
                                  "screen_name": users[current_user].screen_name,

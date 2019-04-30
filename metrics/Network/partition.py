@@ -6,7 +6,7 @@ from metrics.api_for_search import ShillSearchAPI
 from scipy.sparse import coo_matrix
 from scipy.sparse.linalg import eigs
 from metrics.BotDetection.logistic_regression import classify
-from metrics.BotDetection.helper_functions import get_record_from_dict
+from metrics.BotDetection.helper_functions import get_record_from_dict, does_user_exist
 
 connection = psycopg2.connect(**consts.db_creds)
 
@@ -88,15 +88,21 @@ def partition_groups(users_list):
     return group1, group2
 
 
+count = 0
+
+
 def partition_bots(users_list):
     global count
     api = ShillSearchAPI.create_API()
     humans = []
     bots = []
-    for user in users_list:
+    print(len(users_list))
+    for i, user in enumerate(users_list):
         count += 1
+        if does_user_exist(user, failed=True):
+            continue
         if count % 100 == 0:
-            print(count)
+            print(i, count)
         try:
             metadata = api.get_metadata(user, True, True)
             if classify(get_record_from_dict(metadata)[0:8]):
@@ -107,14 +113,3 @@ def partition_bots(users_list):
             pass
     return humans, bots
 
-
-users = get_users(["Trump"])
-print(len(users), users[0])
-
-count = 0
-
-group1, group2 = partition_groups(sorted(users))
-
-group1h, group1b = partition_bots(group1)
-group2h, group2b = partition_bots(group2)
-print(len(group1h), len(group1b), len(group2h), len(group2b))

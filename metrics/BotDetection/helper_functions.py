@@ -29,41 +29,65 @@ def add_to_db(usr_id, screen_name, metadata, is_bot=None):
 
     """
     cursor = connection.cursor()
-    insert_metadata = ''' INSERT INTO user_metadata
-                          (usr_id, screen_name, no_statuses, no_followers, no_friends, no_favourites,
-                           no_listed, default_profile, geo_enabled, custom_bg_img,
-                           verified, protected)
-                           VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s); '''
-    cursor.execute(insert_metadata, [str(usr_id), str(screen_name)] + [str(value) for value in metadata])
+    if not does_user_exist(usr_id, metadata=True):
+        insert_metadata = ''' INSERT INTO user_metadata
+                              (usr_id, screen_name, no_statuses, no_followers, no_friends, no_favourites,
+                               no_listed, default_profile, geo_enabled, custom_bg_img,
+                               verified, protected)
+                               VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s); '''
+        cursor.execute(insert_metadata, [str(usr_id), str(screen_name)] + [str(value) for value in metadata])
     if is_bot is not None:
-        insert_bot_status = '''INSERT INTO user_bot_status (usr_id, is_bot)
+        if not does_user_exist(usr_id, is_bot=True):
+            insert_bot_status = '''INSERT INTO user_bot_status (usr_id, is_bot)
                                VALUES (%s, %s)'''
-        cursor.execute(insert_bot_status, [str(usr_id), str(is_bot)])
+            cursor.execute(insert_bot_status, [str(usr_id), str(is_bot)])
     connection.commit()
 
     
-# Test if the user with user id 'user' exists in the users table
-# failed: True to check for the id in the failed_users table
-def does_user_exist(user, failed=True):
+# Test if the user with user id 'user' exists in certain tables
+def does_user_exist(user, metadata=False, is_bot=False, failed=False):
     """
     Checks if a user currently exists with the databases users and failed_users.
 
     :param user: The twitter user id
-    :param failed: Boolean, True to check both databases, False to check only users
+    :param metadata: Boolean, True to check if the user metadata is known
+    :param is_bot: Boolean, True to check if bot status for user is known
+    :param failed: Boolean, True to check if user has failed before
     :return: Boolean, True if the user id is found
 
     """
-    connection = psycopg2.connect(**consts.db_creds)
     cursor = connection.cursor()
-    exists = ''' SELECT usr_id from users
-                 WHERE usr_id = %s;'''
-    cursor.execute(exists, [user])
-    exists_in_users = len(cursor.fetchall()) > 0
+    if metadata:
+        exists = ''' SELECT usr_id from user_metadata
+                   WHERE usr_id = %s;'''
+        cursor.execute(exists, [user])
+        if len(cursor.fetchall()) > 0:
+            return True
     if failed:
         failed_exists = ''' SELECT usr_id from failed_users
                             WHERE usr_id = %s;'''
         cursor.execute(failed_exists, [user])
-        exists_in_failed = len(cursor.fetchall()) > 0
-        return exists_in_users or exists_in_failed
-    else:
-        return exists_in_users
+        if len(cursor.fetchall()) > 0:
+            return True
+    if is_bot:
+        exists = ''' SELECT usr_id from user_bot_status
+                           WHERE usr_id = %s;'''
+        cursor.execute(exists, [user])
+        if len(cursor.fetchall()) > 0:
+            return True
+
+
+def fail_user(user, error_msg):
+    """
+    Adds a user to the failed_users database.
+
+    :param user: The twitter user id
+    :param error_msg: An error message
+
+    """
+    cursor = connection.cursor()
+    insert = ''' INSERT INTO failed_users
+                 (usr_id, error_msg)
+                 VALUES (%s, %s); '''
+    cursor.execute(insert, [user, str(error_msg)])
+    connection.commit()

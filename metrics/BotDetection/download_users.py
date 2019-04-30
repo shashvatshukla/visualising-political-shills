@@ -4,11 +4,14 @@ import psycopg2
 
 from metrics.api_for_search import ShillSearchAPI
 from metrics.api_for_db import ShillDBAPI
-from metrics.BotDetection.helper_functions import add_to_db, does_user_exist, get_record_from_dict
+from metrics.BotDetection.helper_functions import add_to_db, does_user_exist, get_record_from_dict, fail_user
 
 """
 Downloads the metadata of Twitter users, for training the logistic regression on.
 """
+
+connection = psycopg2.connect(**consts.db_creds)
+
 
 def create_db():
     """
@@ -43,23 +46,6 @@ def create_db():
     connection.commit()
 
 
-def fail_user(user, error_msg):
-    """
-    Adds a user to the failed_users database.
-
-    :param user: The twitter user id
-    :param error_msg: An error message
-
-    """
-    connection = psycopg2.connect(**consts.db_creds)
-    cursor = connection.cursor()
-    insert = ''' INSERT INTO failed_users
-                 (usr_id, error_msg)
-                 VALUES (%s, %s); '''
-    cursor.execute(insert, [user, str(error_msg)])
-    connection.commit()
-
-
 def find_users(start, end, words, amount):
     """
     Searches the tweets database, then fetches the metadata and botometer result for the owners of the tweets, then
@@ -81,7 +67,7 @@ def find_users(start, end, words, amount):
     count = 0
     print(len(users))
     for user in list(users):
-        if does_user_exist(user):
+        if does_user_exist(user, is_bot=True, failed=True):
             continue
         data = None
         is_bot = None
