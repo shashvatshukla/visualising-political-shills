@@ -29,6 +29,8 @@ class Metrics:
         self.retweets = None
         self.coefficient = None
         self.similar_text = None
+        self.coeff_text = None
+        self.coeff_color = "grey"
 
 
 metrics_data = Metrics()
@@ -80,15 +82,27 @@ def second():
                 "Proportion of traffic from the top 50 users")
             metrics_data.retweets = metrics_data.coeff_dictionary.get(
                 "Proportion of retweets")
+        if metrics_data.coefficient < 12:
+                metrics_data.coeff_text = "Low"
+                metrics_data.coeff_color = "green"
+        else:
+                if metrics_data.coefficient < 30:
+                    metrics_data.coeff_text = "Medium"
+                    metrics_data.coeff_color = "gold"
+                else:
+                    metrics_data.coeff_text = "High"
+                    metrics_data.coeff_color = "red"
         return render_template('dashboard.html',
                                div_traffic_increase=Markup(
                                    metrics_data.traffic_increase_plot),
-                               coeff_text = metrics_data.coefficient)
+                               coeff_text = metrics_data.coeff_text,
+                               coeff_color = metrics_data.coeff_color)
     elif request.method == 'GET':
         return render_template('dashboard.html',
                                div_traffic_increase=Markup(
                                    metrics_data.traffic_increase_plot),
-                               coeff_text = metrics_data.coefficient)
+                               coeff_text = metrics_data.coeff_text,
+                               coeff_color = metrics_data.coeff_color)
 
 
 @app.route('/metric1', methods=['GET'])
