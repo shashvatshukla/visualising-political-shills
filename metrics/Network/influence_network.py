@@ -105,5 +105,10 @@ def sub_network(keywords):
     users = get_users(keywords)
     edges = get_edges(users)
     group1, group2 = partition_groups(users)
-    return group1, group2, edges
+    partition = {}
+    for i in group1:
+        partition[i] = 0
+    for i in group2:
+        partition[i] = 1
+    return users, partition, edges
 
