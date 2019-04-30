@@ -88,16 +88,33 @@ def build_network():
 
 
 def get_edges(users):
+    user_dict = {}
+    for i in users:
+        user_dict[i] = 1
     cursor = connection.cursor()
-    select_connections = """ SELECT usr, other_usr
-                             FROM influences"""
-    cursor.execute(select_connections)
+    drop_old = "DROP TABLE temp"
+    create_new = """CREATE TABLE temp (usr VARCHAR(22))"""
+    try:
+        cursor.execute(drop_old)
+    except psycopg2.ProgrammingError:
+        pass
+    cursor.execute(create_new)
+    insert = """INSERT INTO temp (usr)
+                 VALUES (%s);"""
+    for user in user_dict:
+        cursor.execute(insert, [user])
+    select = """ SELECT influences.usr, influences.other_usr
+                 FROM influences
+                 INNER JOIN temp as t1
+                 ON t1.usr = influences.usr
+                 INNER JOIN temp as t2
+                 ON t2.usr = influences.other_usr"""
+    cursor.execute(select)
     edges = []
     fetched = [None]
     while len(fetched) > 0:
-        for record in fetched:
-            if record[0] in users or record[1] in users:
-                edges.append(record)
+        fetched = cursor.fetchall()
+        edges.extend(fetched)
     return edges
 
 
