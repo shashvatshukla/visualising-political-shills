@@ -8,10 +8,10 @@ connection = psycopg2.connect(**consts.db_creds)
 def create_table():
     cursor = connection.cursor()
     create_table_1 = ''' CREATE TABLE influences
-                       (id SERIAL PRIMARY KEY,
-                        usr VARCHAR(22),
-                        other_usr VARCHAR(22),
-                        UNIQUE (usr, other_usr)); '''
+                         (id SERIAL PRIMARY KEY,
+                          usr VARCHAR(22),
+                          other_usr VARCHAR(22),
+                          UNIQUE (usr, other_usr)); '''
     cursor.execute(create_table_1)
     connection.commit()
 
@@ -85,6 +85,20 @@ def build_network():
         for retweet in retweets:
             if is_strong(retweet[1], retweet[2], retweet[4]):
                 add_link(retweet[1], retweet[2])
+
+
+def get_edges(users):
+    cursor = connection.cursor()
+    select_connections = """ SELECT usr, other_usr
+                             FROM interactions"""
+    cursor.execute(select_connections)
+    edges = []
+    fetched = [None]
+    while len(fetched) > 0:
+        for record in fetched:
+            if record[0] in users or record[1] in users:
+                edges.append(record)
+    return edges
 
 
 build_network()
