@@ -90,7 +90,7 @@ def build_network():
 def get_edges(users):
     cursor = connection.cursor()
     select_connections = """ SELECT usr, other_usr
-                             FROM interactions"""
+                             FROM influences"""
     cursor.execute(select_connections)
     edges = []
     fetched = [None]
