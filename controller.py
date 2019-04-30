@@ -3,7 +3,8 @@ import json
 import zipfile
 import os
 import io
-from itertools import chain
+import networkx as nx
+import metrics.Network.influence_network as infnet
 
 
 import plotly.graph_objs as go
@@ -31,6 +32,7 @@ class Metrics:
         self.similar_text = None
         self.coeff_text = None
         self.coeff_color = "grey"
+        self.network = None
 
 
 metrics_data = Metrics()
@@ -63,8 +65,11 @@ def second():
                                                    end_date_timestamp,
                                                    hashtags)
         metrics_data.traffic_increase_plot = traffic.graph_traffic_and_spikes(
-            metrics_data.tweets, start_date, end_date, 20)
+            metrics_data.tweets, start_date, end_date, 60)
         metrics_data.similar_text = simtex.cluster_tweets_by_text(shill_api, 4)
+
+        # Networking
+        metrics_data.network = infnet.sub_network(hashtags)
 
         if len(metrics_data.tweets) == 0:
             metrics_data.coeff_dictionary = "No tweets found"
@@ -187,6 +192,184 @@ def metric3():
 
     return render_template('metric3.html',
                            similar_text_bubble=Markup(html))
+
+
+
+
+@app.route('/metric4', methods=['GET'])
+def metric4():
+    def community_layout(g, partition):
+        """
+        Compute the layout for a modular graph.
+
+
+        Arguments:
+        ----------
+        g -- networkx.Graph or networkx.DiGraph instance
+            graph to plot
+
+        partition -- dict mapping int node -> int community
+            graph partitions
+
+
+        Returns:
+        --------
+        pos -- dict mapping int node -> (float x, float y)
+            node positions
+
+        """
+
+        pos_communities = _position_communities(g, partition, scale=3.)
+
+        pos_nodes = _position_nodes(g, partition, scale=1.)
+
+        # combine positions
+        pos = dict()
+        for node in g.nodes():
+            pos[node] = pos_communities[node] + pos_nodes[node]
+
+        return pos
+
+    def _position_communities(g, partition, **kwargs):
+
+        # create a weighted graph, in which each node corresponds to a community,
+        # and each edge weight to the number of edges between communities
+        between_community_edges = _find_between_community_edges(g, partition)
+
+        communities = set(partition.values())
+        hypergraph = nx.DiGraph()
+        hypergraph.add_nodes_from(communities)
+        for (ci, cj), edges in between_community_edges.items():
+            hypergraph.add_edge(ci, cj, weight=len(edges))
+
+        # find layout for communities
+        pos_communities = nx.spring_layout(hypergraph, **kwargs)
+
+        # set node positions to position of community
+        pos = dict()
+        for node, community in partition.items():
+            pos[node] = pos_communities[community]
+
+        return pos
+
+    def _find_between_community_edges(g, partition):
+
+        edges = dict()
+
+        for (ni, nj) in g.edges():
+            ci = partition[ni]
+            cj = partition[nj]
+
+            if ci != cj:
+                try:
+                    edges[(ci, cj)] += [(ni, nj)]
+                except KeyError:
+                    edges[(ci, cj)] = [(ni, nj)]
+
+        return edges
+
+    def _position_nodes(g, partition, **kwargs):
+        """
+        Positions nodes within communities.
+        """
+
+        communities = dict()
+        for node, community in partition.items():
+            try:
+                communities[community] += [node]
+            except KeyError:
+                communities[community] = [node]
+
+        pos = dict()
+        for ci, nodes in communities.items():
+            subgraph = g.subgraph(nodes)
+            pos_subgraph = nx.spring_layout(subgraph, **kwargs)
+            pos.update(pos_subgraph)
+
+        return pos
+
+
+    # G = nx.Graph()
+    # G.add_nodes_from([1,2,3,4,5,6,7,8])
+    # G.add_edges_from([(1,2),(2,3),(3,4),(1,4), (1,5), (1,6), (1,7), (2,8), (2,7)])
+    # partition = {
+    #     1: 0,
+    #     2: 1,
+    #     3: 1,
+    #     4: 0,
+    #     5: 0,
+    #     6: 1,
+    #     7: 0,
+    #     8: 1
+    # }
+    G = nx.Graph()
+    G.add_nodes_from(metrics_data.network[0])
+    partition = metrics_data.network[1]
+    G.add_edges_from(metrics_data.network[2])
+
+    pos = community_layout(G, partition)
+
+    # Actual Drawing
+    edge_trace = go.Scatter(
+        x=[],
+        y=[],
+        line=dict(width=0.5, color='#888'),
+        hoverinfo='none',
+        mode='lines')
+
+    for edge in G.edges():
+        x0, y0 = pos[edge[0]]
+        x1, y1 = pos[edge[1]]
+        edge_trace['x'] += tuple([x0, x1, None])
+        edge_trace['y'] += tuple([y0, y1, None])
+
+    node_trace = go.Scatter(
+        x=[],
+        y=[],
+        text=[],
+        mode='markers',
+        hoverinfo='text',
+        marker=dict(
+            showscale=True,
+            # colorscale options
+            # 'Greys' | 'YlGnBu' | 'Greens' | 'YlOrRd' | 'Bluered' | 'RdBu' |
+            # 'Reds' | 'Blues' | 'Picnic' | 'Rainbow' | 'Portland' | 'Jet' |
+            # 'Hot' | 'Blackbody' | 'Earth' | 'Electric' | 'Viridis' |
+            colorscale='YlGnBu',
+            reversescale=True,
+            color=[],
+            size=10,
+            colorbar=dict(
+                thickness=15,
+                title='Node Connections',
+                xanchor='left',
+                titleside='right'
+            ),
+            line=dict(width=2)))
+
+    for node in G.nodes():
+        x, y = pos[node]
+        node_trace['x'] += tuple([x])
+        node_trace['y'] += tuple([y])
+
+    fig = go.Figure(data=[edge_trace, node_trace],
+                    layout=go.Layout(
+                        title='<br>Network Graph',
+                        titlefont=dict(size=16),
+                        showlegend=False,
+                        hovermode='closest',
+                        margin=dict(b=20, l=5, r=5, t=40),
+                        xaxis=dict(showgrid=False, zeroline=False,
+                                   showticklabels=False),
+                        yaxis=dict(showgrid=False, zeroline=False,
+                                   showticklabels=False)))
+
+    rendered = py.plot(fig, filename='networkx', output_type='div')
+    return render_template('metric4.html',
+                           network=Markup(rendered))
+
+
+
 
 @app.route('/download')
 def download():

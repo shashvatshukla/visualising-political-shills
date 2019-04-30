@@ -32,7 +32,7 @@
       <header class="demo-header mdl-layout__header mdl-color--blue-900 mdl-color-text--white">
         <div class="mdl-layout__header-row">
           <span class="mdl-layout-title">Dashboard</span>
-          
+
         </div>
       </header>
       <div class="demo-drawer mdl-layout__drawer mdl-color--blue-grey-900 mdl-color-text--blue-grey-50">
@@ -41,8 +41,8 @@
           <!-- <a class="mdl-navigation__link" href="\metric1"><i class="mdl-color-text--white material-icons" role="presentation">perm_data_setting</i><font color="white">Traffic increase pattern</font></a> -->
           <a class="mdl-navigation__link" href="\metric2"><i class="mdl-color-text--white material-icons" role="presentation">perm_data_setting</i><font color="white">Traffic manipulation</font></a>
           <a class="mdl-navigation__link" href="\metric3"><i class="mdl-color-text--white material-icons" role="presentation">perm_data_setting</i><font color="white">Repeated tweets</font></a>
-          <!-- <a class="mdl-navigation__link" href="metric4.html"><i class="mdl-color-text--white material-icons" role="presentation">perm_data_setting</i><font color="white">Metric4</font></a>
-          <a class="mdl-navigation__link" href="metric5.html"><i class="mdl-color-text--white material-icons" role="presentation">perm_data_setting</i><font color="white">Metric5</font></a> -->
+          <a class="mdl-navigation__link" href="\metric4"><i class="mdl-color-text--white material-icons" role="presentation">perm_data_setting</i><font color="white">Network Partitioning</font></a>
+          <!--<a class="mdl-navigation__link" href="metric5.html"><i class="mdl-color-text&#45;&#45;white material-icons" role="presentation">perm_data_setting</i><font color="white">Metric5</font></a> &ndash;&gt;-->
           <a class="mdl-navigation__link" href="\index"><i class="mdl-color-text--white material-icons" role="presentation">search</i><font color="white">New search</font></a>
         </nav>
       </div>
@@ -84,7 +84,6 @@
                 <h2 class="mdl-card__title-text">Repeated Tweets</h2>
               </div>
               <div class="mdl-card__supporting-text">
-                <h4>{{similar_text_bubble}}</h4>
                 A list of repeated tweets; each list element displays the
                 tweet's text and the number of times it has been sent.
                 Upon clicking on an element, a list of the users that tweeted
@@ -97,6 +96,26 @@
               </div>
             </div>
           </div>
+
+          <div class = "mdl-cell mdl-cell--6-col">
+            <div class="demo-card-wide mdl-card mdl-shadow--2dp" style="width: 100%">
+                <div class="mdl-card__title">
+                  <h2 class="mdl-card__title-text">Network Partitioning</h2>
+                </div>
+                <div class="mdl-card__supporting-text">
+                   A list of repeated tweets; each list element displays the
+                  tweet's text and the number of times it has been sent.
+                  Upon clicking on an element, a list of the users that tweeted
+                  that text (as well as very similar ones) will be shown.
+                </div>
+                <div class="mdl-card__actions mdl-card--border">
+                  <a class="mdl-button mdl-button--colored mdl-js-button mdl-js-ripple-effect" href="\metric4" action="\metric1" method="post">
+                    See more
+                  </a>
+                </div>
+            </div>
+          </div>
+
         </div>
       </main>
     </div>
