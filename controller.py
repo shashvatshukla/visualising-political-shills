@@ -198,122 +198,22 @@ def metric3():
 
 @app.route('/metric4', methods=['GET'])
 def metric4():
-    def community_layout(g, partition):
-        """
-        Compute the layout for a modular graph.
+    G = nx.DiGraph()
+    G.add_nodes_from([1,2,3,4])
+    G.add_edges_from([(1,2), (2,1), (1,3), (3,1), (2,4), (4,2)])
 
-
-        Arguments:
-        ----------
-        g -- networkx.Graph or networkx.DiGraph instance
-            graph to plot
-
-        partition -- dict mapping int node -> int community
-            graph partitions
-
-
-        Returns:
-        --------
-        pos -- dict mapping int node -> (float x, float y)
-            node positions
-
-        """
-
-        pos_communities = _position_communities(g, partition, scale=3.)
-
-        pos_nodes = _position_nodes(g, partition, scale=1.)
-
-        # combine positions
-        pos = dict()
-        for node in g.nodes():
-            pos[node] = pos_communities[node] + pos_nodes[node]
-
-        return pos
-
-    def _position_communities(g, partition, **kwargs):
-
-        # create a weighted graph, in which each node corresponds to a community,
-        # and each edge weight to the number of edges between communities
-        between_community_edges = _find_between_community_edges(g, partition)
-
-        communities = set(partition.values())
-        hypergraph = nx.DiGraph()
-        hypergraph.add_nodes_from(communities)
-        for (ci, cj), edges in between_community_edges.items():
-            hypergraph.add_edge(ci, cj, weight=len(edges))
-
-        # find layout for communities
-        pos_communities = nx.spring_layout(hypergraph, **kwargs)
-
-        # set node positions to position of community
-        pos = dict()
-        for node, community in partition.items():
-            pos[node] = pos_communities[community]
-
-        return pos
-
-    def _find_between_community_edges(g, partition):
-
-        edges = dict()
-
-        for (ni, nj) in g.edges():
-            ci = partition[ni]
-            cj = partition[nj]
-
-            if ci != cj:
-                try:
-                    edges[(ci, cj)] += [(ni, nj)]
-                except KeyError:
-                    edges[(ci, cj)] = [(ni, nj)]
-
-        return edges
-
-    def _position_nodes(g, partition, **kwargs):
-        """
-        Positions nodes within communities.
-        """
-
-        communities = dict()
-        for node, community in partition.items():
-            try:
-                communities[community] += [node]
-            except KeyError:
-                communities[community] = [node]
-
-        pos = dict()
-        for ci, nodes in communities.items():
-            subgraph = g.subgraph(nodes)
-            pos_subgraph = nx.spring_layout(subgraph, **kwargs)
-            pos.update(pos_subgraph)
-
-        return pos
-
-
-    # G = nx.Graph()
-    # G.add_nodes_from([1,2,3,4,5,6,7,8])
-    # G.add_edges_from([(1,2),(2,3),(3,4),(1,4), (1,5), (1,6), (1,7), (2,8), (2,7)])
-    # partition = {
-    #     1: 0,
-    #     2: 1,
-    #     3: 1,
-    #     4: 0,
-    #     5: 0,
-    #     6: 1,
-    #     7: 0,
-    #     8: 1
-    # }
-    G = nx.Graph()
-    G.add_nodes_from(metrics_data.network[0])
-    partition = metrics_data.network[1]
-    G.add_edges_from(metrics_data.network[2])
-
-    pos = community_layout(G, partition)
+    pos = {
+        1: (5, 5),
+        3: (5, 0),
+        2: (10, 5),
+        4: (10, 0)
+    }
 
     # Actual Drawing
     edge_trace = go.Scatter(
         x=[],
         y=[],
-        line=dict(width=0.5, color='#888'),
+        line=dict(width=40.5, color='#888'),
         hoverinfo='none',
         mode='lines')
 
@@ -338,14 +238,13 @@ def metric4():
             colorscale='YlGnBu',
             reversescale=True,
             color=[],
-            size=10,
+            size=100,
             colorbar=dict(
                 thickness=15,
-                title='Node Connections',
+                title='Stuff',
                 xanchor='left',
                 titleside='right'
-            ),
-            line=dict(width=2)))
+            )))
 
     for node in G.nodes():
         x, y = pos[node]
