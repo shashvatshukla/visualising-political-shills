@@ -1,6 +1,6 @@
 import psycopg2
 import consts
-
+from metrics.Network.partition import *
 
 connection = psycopg2.connect(**consts.db_creds)
 
@@ -101,4 +101,9 @@ def get_edges(users):
     return edges
 
 
-build_network()
+def sub_network(keywords):
+    users = get_users(keywords)
+    edges = get_edges(users)
+    group1, group2 = partition_groups(users)
+    return group1, group2, edges
+
