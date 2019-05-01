@@ -20,6 +20,17 @@
             margin-bottom: 40px;
             z-index: 900;
         }
+        .formula {
+            color: blue;
+        }
+        #coefficient {
+            color: {{coeff_color}};
+            border:3px; 
+            border-style:solid; 
+            padding-left: 5px;
+            padding-right: 5px;
+            border-color: {{coeff_color}};
+        }
     </style>
 </head>
 <body>
@@ -61,38 +72,41 @@
                     </div>
                 </div>
             </div>
-            <div class = "mdl-cell mdl-cell--12-col">
-                <div class="demo-card-wide mdl-card mdl-shadow--2dp" style="width: 100%">
+            <div class="mdl-cell mdl-cell--3-col demo-card-wide mdl-card mdl-shadow--2dp">
                     <div class="mdl-card__title">
                         <h2 class="mdl-card__title-text">Average number of tweets per user:</h2>
                     </div>
-                    <div class="mdl-card__supporting-text">
-                        <h3>{{average_tweets}}</h3>
+                    <div class="mdl-card__supporting-text" style="text-align:center; padding-top:25%">
+                        <h2>{{average_tweets}}</h2>
                     </div>
                 </div>
-            </div>
-            <div class = "mdl-cell mdl-cell--12-col">
-                <div class="demo-card-wide mdl-card mdl-shadow--2dp" style="width: 100%">
-                    <div class="mdl-card__title">
-                        <h2 class="mdl-card__title-text">Coefficient of traffic manipulation:</h2>
-                    </div>
-                    <div class="mdl-grid">
-                        <div class="mdl-card__supporting-text mdl-cell mdl-cell--11-col">
-                            <h3>{{coeff_text}}</h3>
-                        </div>
-                        <div class="mdl-card__supporting-text mdl-cell mdl-cell--1-col">
-                            <a href="https://comprop.oii.ox.ac.uk/wp-content/uploads/sites/93/2019/01/Manipulating-Twitter-Traffic.pdf">
-                                <i class="mdl-color-text--grey material-icons" align="right">info</i>
+                <div class="mdl-cell mdl-cell--9-col demo-card-wide mdl-card mdl-shadow--2dp">
+                    <div class="mdl-card__title mdl-grid" style="width:100%">
+                        <h2 class="mdl-card__title-text mdl-cell mdl-cell--11-col">Coefficient of traffic manipulation:</h2>
+                        <div class="mdl-cell mdl-cell--1-col">
+                            <a
+                                href="https://comprop.oii.ox.ac.uk/wp-content/uploads/sites/93/2019/01/Manipulating-Twitter-Traffic.pdf">
+                                <i class="mdl-color-text--white material-icons">info</i>
                             </a>
                         </div>
-                        <div class="mdl-card__actions mdl-card--border">
-                        <div class="mdl-card__supporting-text  mdl-cell mdl-cell--12-col">
-                        The Coefficient of Data Manipulation is computed as R/10 + F + U, where R is the 
-                        percentage of retweets, F is the percentage of traffic from the top fifty users, 
-                        and U is the average number of tweets per user.
-                        A coefficient above 12 indicates a good probability of traffc manipulation.
-                        </div>
-                    </div> 
+                    </div>
+                    <div class="mdl-card__supporting-text">
+                        The Coefficient of Traffic Manipulation is expressed as follows, where C is the 
+                        coefficient of traffic manipulation, R is the percentage of retweets, F is the 
+                        percentage of traffic from the top fifty users, and U is the average number of 
+                        tweets per user:       
+                        <h3>C = R/10 + F + U</h3>
+                         In our case, we get the following result:
+                        <h3>
+                            <span id="coefficient">{{coeff}}</span>
+                             = 
+                            <span class="formula">{{rt}}</span>
+                             /10 + 
+                            <span class="formula">{{fifty}}</span>
+                             + 
+                            <span class="formula">{{average_tweets}}</span>
+                        </h3>
+                    </div>
                 </div>
             </div>
         </div>
