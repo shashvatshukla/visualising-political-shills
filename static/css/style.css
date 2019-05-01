@@ -137,3 +137,11 @@ td.is-selected.is-today {
   margin-right: auto;
   width: 50%;
 }
+
+.fix{
+  position:fixed;
+  bottom:0px;
+  width: 80%;
+  height: 40%;
+  left: 10%
+}
