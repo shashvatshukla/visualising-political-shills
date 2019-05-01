@@ -33,9 +33,14 @@ class Metrics:
         self.coeff_text = None
         self.coeff_color = "grey"
         self.network = None
+        self.coeff_explanations = None
 
 
 metrics_data = Metrics()
+
+def truncate(n, decimals=0):
+    multiplier = 10 ** decimals
+    return int(n * multiplier) / multiplier
 
 
 @app.route('/')
@@ -79,36 +84,45 @@ def second():
             metrics_data.coefficient = "No tweets found"
         else:
             metrics_data.coeff_dictionary = coeff.coefficient(metrics_data.tweets)
-            metrics_data.coefficient = metrics_data.coeff_dictionary.get(
-                "Coefficient of traffic manipulation")
-            metrics_data.avg_tweets = metrics_data.coeff_dictionary.get(
-                "Average number of tweets per user")
-            metrics_data.traffic_top_users = metrics_data.coeff_dictionary.get(
-                "Proportion of traffic from the top 50 users")
-            metrics_data.retweets = metrics_data.coeff_dictionary.get(
-                "Proportion of retweets")
-        if metrics_data.coefficient < 12:
-                metrics_data.coeff_text = "Low"
-                metrics_data.coeff_color = "green"
-        else:
-                if metrics_data.coefficient < 30:
-                    metrics_data.coeff_text = "Medium"
-                    metrics_data.coeff_color = "gold"
-                else:
-                    metrics_data.coeff_text = "High"
-                    metrics_data.coeff_color = "red"
+            metrics_data.coefficient = truncate(metrics_data.coeff_dictionary.get(
+                "Coefficient of traffic manipulation"), 2)
+            metrics_data.avg_tweets = truncate(metrics_data.coeff_dictionary.get(
+                "Average number of tweets per user"), 2)
+            metrics_data.traffic_top_users = truncate(metrics_data.coeff_dictionary.get(
+                "Proportion of traffic from the top 50 users"), 2)
+            metrics_data.retweets = truncate(metrics_data.coeff_dictionary.get(
+                "Proportion of retweets"), 2)
+            if metrics_data.coefficient < 12:
+                    metrics_data.coeff_text = "Low"
+                    metrics_data.coeff_color = "green"
+                    metrics_data.coeff_explanation = "Traffic was barely manipulated."
+            else:
+                    if metrics_data.coefficient < 20:
+                        metrics_data.coeff_text = "Medium"
+                        metrics_data.coeff_color = "gold"
+                        metrics_data.coeff_explanation = "Traffic was slightly manipulated."
+                    else:
+                        if metrics_data.coefficient < 30:
+                            metrics_data.coeff_text = "High"
+                            metrics_data.coeff_color = "OrangeRed"
+                            metrics_data.coeff_explanation = "Traffic was very manipulated."
+                        else:
+                            metrics_data.coeff_text = "Very high"
+                            metrics_data.coeff_color = "red"
+                            metrics_data.coeff_explanation = "Traffic was extremely manipulated."
         return render_template('dashboard.html',
                                div_traffic_increase=Markup(
                                    metrics_data.traffic_increase_plot),
                                coeff_text = metrics_data.coeff_text,
-                               coeff_color = metrics_data.coeff_color)
+                               coeff_color = metrics_data.coeff_color,
+                               coeff_explanation = metrics_data.coeff_explanation)
     elif request.method == 'GET':
         return render_template('dashboard.html',
                                div_traffic_increase=Markup(
                                    metrics_data.traffic_increase_plot),
                                coeff_text = metrics_data.coeff_text,
-                               coeff_color = metrics_data.coeff_color)
-
+                               coeff_color = metrics_data.coeff_color,
+                               coeff_explanation = metrics_data.coeff_explanation)
 
 @app.route('/metric1', methods=['GET'])
 def metric1():
@@ -140,8 +154,11 @@ def metric2():
         rt_pie = py.plot([rt_metrics_data], output_type = 'div')
         users_pie = py.plot([users_metrics_data], output_type = 'div')
     return render_template('metric2.html',
-                           coeff_text=metrics_data.coefficient,
+                           coeff=metrics_data.coefficient,
+                           rt = metrics_data.retweets,
+                           fifty = metrics_data.traffic_top_users,
                            average_tweets=metrics_data.avg_tweets,
+                           coeff_color= metrics_data.coeff_color,
                            retweets_percent_pie = Markup(rt_pie),
                            most_tweets_pie = Markup(users_pie))
 
