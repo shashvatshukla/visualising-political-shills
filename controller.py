@@ -33,7 +33,7 @@ class Metrics:
         self.coeff_text = None
         self.coeff_color = "grey"
         self.network = None
-        self.coeff_explanations = None
+        self.coeff_explanation = None
 
 
 metrics_data = Metrics()
