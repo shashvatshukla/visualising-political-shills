@@ -215,61 +215,150 @@ def metric3():
 
 @app.route('/metric4', methods=['GET'])
 def metric4():
-    G = nx.DiGraph()
-    G.add_nodes_from([1, 2 , 3, 4])
-    G.add_edges_from([(1, 2), (2, 1), (1, 3), (3, 1), (2, 4), (4, 2)])
 
-    pos = {
-        1: (5, 5),
-        3: (5, 0),
-        2: (10, 5),
-        4: (10, 0)
-    }
-
-    # Actual Drawing
-    edge_trace = go.Scatter(
+    trace = go.Scatter(
         x=[],
         y=[],
-        line=dict(width=40.5, color='#888'),
-        hoverinfo='none',
-        mode='lines')
-
-    for edge in G.edges():
-        x0, y0 = pos[edge[0]]
-        x1, y1 = pos[edge[1]]
-        edge_trace['x'] += tuple([x0, x1, None])
-        edge_trace['y'] += tuple([y0, y1, None])
-
-    node_trace = go.Scatter(
-        x=[],
-        y=[],
-        text=[],
-        mode='markers',
-        hoverinfo='text',
     )
+    
+    fig = go.Figure(
+        data=[trace],
+        layout=go.Layout(
+            hovermode='closest',
+            xaxis=dict(
+                range=[-10, 10],
+                autorange=True,
+                showgrid=False,
+                zeroline=False,
+                showline=False,
+                ticks='',
+                showticklabels=False
+            ),
+            yaxis=dict(
+                scaleanchor="x",
+                scaleratio=1,
+                range=[-10, 10],
+                autorange=True,
+                showgrid=False,
+                zeroline=False,
+                showline=False,
+                ticks='',
+                showticklabels=False
+            ),
+            shapes=[
+            {
+                'type': 'circle',
+                'xref': 'x',
+                'yref': 'y',
+                'fillcolor': '#1565c0',
+                'x0': -7.5,
+                'y0': 2.5,
+                'x1': -2.5,
+                'y1': 7.5,
+            },
+            {
+                'type': 'circle',
+                'xref': 'x',
+                'yref': 'y',
+                'fillcolor': '#1565c0',
+                'x0': 2.5,
+                'y0': 2.5,
+                'x1': 7.5,
+                'y1': 7.5,
+            },
+            {
+                'type': 'circle',
+                'xref': 'x',
+                'yref': 'y',
+                'fillcolor': '#dd2c00',
+                'x0': 2.5,
+                'y0': -2.5,
+                'x1': 7.5,
+                'y1': -7.5,
+            },
+            {
+                'type': 'circle',
+                'xref': 'x',
+                'yref': 'y',
+                'fillcolor': '#dd2c00',
+                'x0': -2.5,
+                'y0': -2.5,
+                'x1': -7.5,
+                'y1': -7.5,
+            },
+            {
+                'type': 'line',
+                'x0': -2.5,
+                'y0': 5.5,
+                'x1': 2.5,
+                'y1': 5.5,
+                'line': {
+                    'color': 'black',
+                    'width': 3,
+                },
+            },
+            {
+                'type': 'line',
+                'x0': -2.5,
+                'y0': 4.5,
+                'x1': 2.5,
+                'y1': 4.5,
+                'line': {
+                    'color': 'black',
+                    'width': 9,
+                },
+            },
+            {
+                'type': 'line',
+                'x0': 5.5,
+                'y0': 2.5,
+                'x1': 5.5,
+                'y1': -2.5,
+                'line': {
+                    'color': 'black',
+                    'width': 9,
+                },
+            },
+            {
+                'type': 'line',
+                'x0': 4.5,
+                'y0': 2.5,
+                'x1': 4.5,
+                'y1': -2.5,
+                'line': {
+                    'color': 'black',
+                    'width': 9,
+                },
+            },
+            {
+                'type': 'line',
+                'x0': -5.5,
+                'y0': 2.5,
+                'x1': -5.5,
+                'y1': -2.5,
+                'line': {
+                    'color': 'black',
+                    'width': 9,
+                },
+            },
+            {
+                'type': 'line',
+                'x0': -4.5,
+                'y0': 2.5,
+                'x1': -4.5,
+                'y1': -2.5,
+                'line': {
+                    'color': 'black',
+                    'width': 9,
+                },
+            }
+            ]
+        )
+    )
+    rendered = py.plot(fig, output_type='div')
 
-    for node in G.nodes():
-        x, y = pos[node]
-        node_trace['x'] += tuple([x])
-        node_trace['y'] += tuple([y])
-
-    fig = go.Figure(data=[edge_trace, node_trace],
-                    layout=go.Layout(
-                        title='<br>Network Graph',
-                        titlefont=dict(size=16),
-                        showlegend=False,
-                        hovermode='closest',
-                        margin=dict(b=20, l=5, r=5, t=40),
-                        xaxis=dict(showgrid=False, zeroline=False,
-                                   showticklabels=False),
-                        yaxis=dict(showgrid=False, zeroline=False,
-                                   showticklabels=False)))
-
-    rendered = py.plot(fig, filename='networkx', output_type='div')
     return render_template('metric4.html',
                            network=Markup(rendered))
-
-
 
 
 @app.route('/download')
