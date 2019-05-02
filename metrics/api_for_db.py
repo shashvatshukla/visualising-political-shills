@@ -75,3 +75,16 @@ class ShillDBAPI(ShillAPI):
             })
 
         return res
+
+    def get_users_who_tweeted(self, tweet):
+        query = f'''
+                SELECT usr FROM tweets WHERE text LIKE '{ tweet }'
+                '''
+
+        self.cursor.execute(query)
+        rows = self.cursor.fetchall()
+        res = []
+        for row in rows:
+            res.append(row[0])
+
+        return res

@@ -37,6 +37,7 @@ class Metrics:
 
 
 metrics_data = Metrics()
+shill_api = api.ShillDBAPI(**consts.shill_api_creds)
 
 def truncate(n, decimals=0):
     multiplier = 10 ** decimals
@@ -65,12 +66,12 @@ def second():
         end_date_timestamp = datetime.datetime.strptime(end_date,
                                                         "%Y-%m-%d %H:%M:%S")
 
-        shill_api = api.ShillDBAPI(**consts.shill_api_creds)
         metrics_data.tweets = shill_api.get_tweets(start_date_timestamp,
                                                    end_date_timestamp,
                                                    hashtags)
         metrics_data.traffic_increase_plot = traffic.graph_traffic_and_spikes(
             metrics_data.tweets, start_date, end_date, 60)
+
         metrics_data.similar_text = simtex.cluster_tweets_by_text(shill_api, 4)
 
         # Networking
@@ -178,13 +179,14 @@ def metric3():
     for cluster in sorted(metrics_data.similar_text,
                           key=lambda cluster: cluster['occurrences'],
                           reverse=True):
-        similar_or_exact = simtex.get_similar_tweets_to(cluster['text'],
-                                                        metrics_data.tweets)
-        if similar_or_exact == []:
-            continue
+        # similar_or_exact = simtex.get_similar_tweets_to(cluster['text'],
+        #                                                 metrics_data.tweets)
+        # if similar_or_exact == []:
+        #     continue
 
         exist = True
-        suspicious = [s['usr'] for s in similar_or_exact]
+        # suspicious = [s['usr'] for s in similar_or_exact]
+        suspicious = shill_api.get_users_who_tweeted(cluster['text'])
 
         html += """<li>
                         <div class="collapsible-header">
@@ -211,13 +213,11 @@ def metric3():
                            similar_text_bubble=Markup(html))
 
 
-
-
 @app.route('/metric4', methods=['GET'])
 def metric4():
     G = nx.DiGraph()
-    G.add_nodes_from([1,2,3,4])
-    G.add_edges_from([(1,2), (2,1), (1,3), (3,1), (2,4), (4,2)])
+    G.add_nodes_from([1, 2 , 3, 4])
+    G.add_edges_from([(1, 2), (2, 1), (1, 3), (3, 1), (2, 4), (4, 2)])
 
     pos = {
         1: (5, 5),
@@ -246,22 +246,7 @@ def metric4():
         text=[],
         mode='markers',
         hoverinfo='text',
-        marker=dict(
-            showscale=True,
-            # colorscale options
-            # 'Greys' | 'YlGnBu' | 'Greens' | 'YlOrRd' | 'Bluered' | 'RdBu' |
-            # 'Reds' | 'Blues' | 'Picnic' | 'Rainbow' | 'Portland' | 'Jet' |
-            # 'Hot' | 'Blackbody' | 'Earth' | 'Electric' | 'Viridis' |
-            colorscale='YlGnBu',
-            reversescale=True,
-            color=[],
-            size=100,
-            colorbar=dict(
-                thickness=15,
-                title='Stuff',
-                xanchor='left',
-                titleside='right'
-            )))
+    )
 
     for node in G.nodes():
         x, y = pos[node]
