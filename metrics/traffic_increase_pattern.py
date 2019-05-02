@@ -96,7 +96,7 @@ def graph_traffic_and_spikes(tweets, start_datetime, end_datetime, width, pct_ch
                 size = bin_size
                 ),
             marker = dict(
-                color = '#303f9f' #'#1DA1F2'
+                color='#0d47a1',
                 ),
             name = "Traffic",
             autobinx = False
