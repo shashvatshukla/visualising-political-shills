@@ -3,3 +3,4 @@ venv
 __pycache__
 consts.py
 twitter-
+metrics/manual.py
