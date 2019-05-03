@@ -92,6 +92,17 @@ def get_edges(users):
     for i in users:
         user_dict[i] = 1
     cursor = connection.cursor()
+    drop_old = "DELETE FROM temp"
+    connection.commit()
+    try:
+        cursor.execute(drop_old)
+    except psycopg2.ProgrammingError:
+        pass
+    insert = """INSERT INTO temp (usr)
+                 VALUES (%s);"""
+    for user in user_dict:
+        cursor.execute(insert, [user])
+    connection.commit()
     select = """ SELECT influences.usr, influences.other_usr
                  FROM influences"""
     cursor.execute(select)
@@ -100,6 +111,8 @@ def get_edges(users):
     while len(fetched) > 0:
         fetched = cursor.fetchall()
         edges.extend(fetched)
+    cursor.execute(drop_old)
+    connection.commit()
     return edges
 
 

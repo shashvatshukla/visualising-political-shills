@@ -7,7 +7,7 @@ def download_users(users):
     api = ShillSearchAPI.create_API()
     for i in range(len(users)//100+1):
         print(i)
-        batch = users[i:i+100]
+        batch = users[i*100:i*100+100]
         data = api.get_batch_metadata(user_ids=batch)
         for z, record in enumerate(data):
             if record is not None:
@@ -18,4 +18,5 @@ def download_users(users):
                     fail_user(users[i*100+z], "Metadata Failure: User no longer exists.")
 
 
-download_users(get_users(["Trump"]))
+print(len(get_users(["Trump"])))
+download_users(sorted(get_users(["Trump"])))
