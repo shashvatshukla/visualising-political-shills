@@ -16,75 +16,31 @@ def create_table():
     connection.commit()
 
 
-def get_retweets(usr):
-    cursor = connection.cursor()
-    select_retweets = """ SELECT *
-                          FROM interactions
-                          WHERE usr = %s AND interaction = 'retweet' """
-    cursor.execute(select_retweets, [usr])
-    interactions = []
-    fetched = [None]
-    while len(fetched) > 0:
-        fetched = cursor.fetchall()
-        interactions.extend(fetched)
-    return interactions
-
-
-def is_strong(usr, other_usr, retweet_time, time_limit=None):
-    cursor = connection.cursor()
-    if time_limit:
-        select_interactions = """ SELECT *
-                                  FROM interactions
-                                  WHERE usr = %s AND other_usr = %s AND
-                                        ((%s BETWEEN time - INTERVAL %s AND time - INTERVAL '1 minute') OR
-                                         (%s BETWEEN time + INTERVAL '1 minute' AND time + INTERVAL %s)); """
-        cursor.execute(select_interactions, [usr, other_usr, retweet_time, time_limit, retweet_time, time_limit])
-    else:
-        select_interactions = """ SELECT *
-                                  FROM interactions
-                                  WHERE usr = %s AND other_usr = %s; """
-        cursor.execute(select_interactions, [usr, other_usr])
-    return len(cursor.fetchall()) > 0
-
-
-def add_link(usr, other_usr):
-    cursor = connection.cursor()
-    # Check for existing link
-    select_link = ''' SELECT * 
-                      FROM influences
-                      WHERE usr = %s AND other_usr = %s;'''
-    cursor.execute(select_link, [usr, other_usr])
-    if len(cursor.fetchall()) == 0:
-        # Add new link
-        insert_link = ''' INSERT INTO influences (usr, other_usr)
-                          VALUES (%s, %s);'''
-        cursor.execute(insert_link, [usr, other_usr])
-        connection.commit()
-
-
-def get_users_from_interactions():
-    cursor = connection.cursor()
-    select_users = """ SELECT DISTINCT usr
-                       FROM interactions """
-    cursor.execute(select_users)
-    users = []
-    fetched = [None]
-    while len(fetched) > 0:
-        fetched = cursor.fetchall()
-        users.extend(fetched)
-    return users
-
-
 def build_network():
-    users = get_users_from_interactions()
-    print(len(users))
-    for i, user in enumerate(users):
-        if i % 10000 == 0:
-            print(i)
-        retweets = get_retweets(user)
-        for retweet in retweets:
-            if is_strong(retweet[1], retweet[2], retweet[4]):
-                add_link(retweet[1], retweet[2])
+    build_network_sql = """INSERT INTO influences (usr, other_usr)
+                           (SELECT usr, other_usr
+                            FROM interactions
+                            GROUP BY usr, other_usr
+                            HAVING COUNT(id)>=1)
+                           INTERSECT
+                           (SELECT usr, other_usr
+                            FROM interactions
+                            WHERE interactions.interaction = 'retweet'
+                            GROUP BY usr, other_usr
+                            HAVING COUNT(id)>=1)"""
+
+    build_network_sql_1 = """INSERT INTO influences (usr, other_usr)
+                             SELECT usr, other_usr
+                             FROM interactions as inter1
+                             INNER JOIN interactions as inter2
+                             ON ((%s BETWEEN time - INTERVAL %s AND time - INTERVAL '1 minute') OR
+                                (%s BETWEEN time + INTERVAL '1 minute' AND time + INTERVAL %s)) AND
+                                inter1.usr = inter2.usr AND inter1.other_usr = inter2.other_usr
+                             GROUP BY usr, other_usr"""
+
+    cursor = connection.cursor()
+    cursor.execute(build_network_sql)
+    connection.commit()
 
 
 def get_edges(users):
@@ -104,7 +60,11 @@ def get_edges(users):
         cursor.execute(insert, [user])
     connection.commit()
     select = """ SELECT influences.usr, influences.other_usr
-                 FROM influences"""
+                 FROM influences
+                 INNER JOIN temp as t1
+                 ON t1.usr = influences.usr AND influences.usr != influences.other_usr
+                 INNER JOIN temp as t2
+                 ON t2.usr = influences.other_usr"""
     cursor.execute(select)
     edges = []
     fetched = [None]
