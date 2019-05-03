@@ -3,7 +3,7 @@ import plotly.offline as py
 import plotly.graph_objs as go
 import numpy
 import collections
-from sentiment_analysis import *
+from metrics.sentiment_analysis import *
 
 #Traffic increase pattern
 
