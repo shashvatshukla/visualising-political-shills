@@ -192,6 +192,24 @@ def metric3():
                    metrics_data.hashtags):
             continue
 
+        user_links = ""
+
+        dist_users = list(dict.fromkeys(suspicious))
+        usernames = []
+        for s in dist_users:
+            try:
+                name = shill_api.get_metadata(s)['screen_name']
+                usernames.append(name)
+            except:
+                pass
+        if len(usernames) == 0:
+            user_links += "All accounts were deactivated."
+        else:
+            name = usernames.pop()
+            user_links += "<a href = \"https:\\twitter.com\\" + name + "\">" + name + "</a>"   
+            for name in usernames:
+                user_links += ", <a href = \"https:\\twitter.com\\" + name + "\">" + name + "</a>"
+                
         html += """<li>
                         <div class="collapsible-header">
                         <i class="material-icons %s-text">priority_high</i>
@@ -202,12 +220,10 @@ def metric3():
                         <div class="collapsible-body">
                         <span>
                             Accounts that sent this message or variants:<br>
-                            %s
-                        </span>
-                        </div>
-                </li>""" % (priority(cluster['occurrences']),
-                            cluster['text'], cluster['occurrences'],
-                            suspicious)
+                        """ % (priority(cluster['occurrences']),
+                            cluster['text'], cluster['occurrences'])
+        html += user_links
+        html += """</span></div></li>"""
     html += """</ul>"""
 
     if not exist:
