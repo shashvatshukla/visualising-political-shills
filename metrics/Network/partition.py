@@ -14,7 +14,7 @@ connection = psycopg2.connect(**consts.db_creds)
 def get_users(keywords=None):
     cursor = connection.cursor()
     select_users = ''' SELECT usr, other_usr
-                       FROM influences'''
+                       FROM interactions'''
     cursor.execute(select_users)
     users = set()
     fetched = [None]
