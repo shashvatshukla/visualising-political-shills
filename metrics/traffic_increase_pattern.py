@@ -3,6 +3,7 @@ import plotly.offline as py
 import plotly.graph_objs as go
 import numpy
 import collections
+from sentiment_analysis import *
 
 #Traffic increase pattern
 
@@ -27,24 +28,18 @@ def pct_change(before, after):
     return pct
 
     
-def _spikes_in_traffic(times, bins, pct_change_threshold):
+def _spikes_in_traffic(times, bins, tweet_bins_ind, pct_change_threshold):
     """
     Given a list of tweet times and the bins (time intervals) they will be divided into in the histogram, return a list of traffic spike points 
     (i.e. time intervals where the increase in traffic compared to the previous interval goes over a given threshold).
     
     :param times: A list of tweet times represented as datetime objects.
     :param bins: A list containing the start points of each histogram bin.
+    :param tweet_bins_ind: A list containing the index corresponding to the bin of each tweet.
     :param pct_change_threshold: The threshold for what we consider a spike in traffic, as a percentage increase between the previous period and the current one.
     
     :return: A list of (datetime, int) pairs representing the time periods when there were spikes in traffic, together with the number of tweets over that period.
     """
-
-    times = sorted(times)
-    tweet_timestamps = list(map(datetime.datetime.timestamp, times))
-    bins_as_timestamps = list(map(datetime.datetime.timestamp, bins))
-
-    # list of indices of bins each tweet would be in in the histogram
-    tweet_bins_ind = numpy.digitize(tweet_timestamps, bins_as_timestamps)
         
     # sorted list of (bin, number of tweets in bin) pairs (basically a representation of the histogram as pairs)
     tweet_bin_counts = sorted(collections.Counter(tweet_bins_ind).items())
@@ -66,8 +61,34 @@ def _spikes_in_traffic(times, bins, pct_change_threshold):
             spikes_counts.append(tweet_bin_counts[i+1][1])
     
             
-    return (spikes_bins, spikes_counts) 
-        
+    return (spikes_bins, spikes_counts)
+
+def _sentiment_over_time(tweets, bins, tweet_bins_ind):
+    """
+    Compute the average sentiment score of the tweets in each time interval.
+    
+    :param tweets: A list of tweets.
+    :param bins: A list containing the start points of each histogram bin.
+    :param tweet_bins_ind: A list containing the index corresponding to the bin of each tweet.
+
+    :return: A list containing the average sentiment score of the tweets in each bin.
+    """
+    tweets_by_bin = []
+    max_bin_ind = len(bins)
+    for i in range(0, max_bin_ind):
+        tweets_by_bin.append([])
+
+    for i in range(0, len(tweet_bins_ind)):
+        curr_bin = tweet_bins_ind[i]
+        tweets_by_bin[curr_bin].append(tweets[i])
+
+    sentiment_by_bin = []
+
+    for curr_bin in range(max_bin_ind):
+        curr_bin_sentiment = average_sentiment(tweets_by_bin[curr_bin])
+        sentiment_by_bin.append(curr_bin_sentiment)
+
+    return sentiment_by_bin
 
 def graph_traffic_and_spikes(tweets, start_datetime, end_datetime, width, pct_change_threshold = 400):
     """
@@ -96,17 +117,25 @@ def graph_traffic_and_spikes(tweets, start_datetime, end_datetime, width, pct_ch
                 size = bin_size
                 ),
             marker = dict(
-                color='#0d47a1',
+                color = '#0d47a1'
                 ),
             name = "Traffic",
-            autobinx = False
+            autobinx = False,
+            opacity = 0.7,
+            xaxis = "x1",
+            yaxis = "y1"
         )
     
     bins = numpy.arange(starttime, endtime, bin_size*1000)
     bins = list(map(lambda b: b.astype(datetime.datetime), bins))
+
+    tweet_timestamps = list(map(datetime.datetime.timestamp, times))
+    bins_as_timestamps = list(map(datetime.datetime.timestamp, bins))
+
+    # list of indices of bins each tweet would be in in the histogram
+    tweet_bins_ind = numpy.digitize(tweet_timestamps, bins_as_timestamps)
     
-    
-    (spikes_bins, spikes_counts) = _spikes_in_traffic(times, bins, pct_change_threshold)
+    (spikes_bins, spikes_counts) = _spikes_in_traffic(times, bins, tweet_bins_ind, pct_change_threshold)
     spikes_bins = list(map(lambda b: b + datetime.timedelta(minutes = width/2),spikes_bins))
     traffic_spikes_scatter = go.Scatter(
         x = spikes_bins,
@@ -115,11 +144,39 @@ def graph_traffic_and_spikes(tweets, start_datetime, end_datetime, width, pct_ch
         hovertext = list(map(str, spikes_counts)),
         marker = dict(color = '#BE5057', symbol='triangle-down', size = width/2),
         mode = 'markers',
-        name = "Spikes"           
+        name = "Spikes",
+        xaxis = "x1",
+        yaxis = "y1"
+        )
+
+    sentiment_scatter = go.Scatter(
+            x = list(map(lambda b: b + datetime.timedelta(minutes = width/2), bins)),
+            y = _sentiment_over_time(tweets, bins, tweet_bins_ind),
+            marker = dict(line = dict(width = 1.4)),
+            name = "Sentiment",
+            xaxis = "x1",
+            yaxis = "y2"
         )
     
-    data = [traffic_hist, traffic_spikes_scatter]
-    layout = go.Layout(barmode='overlay')
+    data = [traffic_hist, traffic_spikes_scatter, sentiment_scatter]
+    layout = go.Layout(barmode = 'overlay',
+                       xaxis = dict(
+                           title = 'Time',
+                           ),
+                       yaxis = dict(
+                           title = 'Number of tweets',
+                           ),
+                       yaxis2 = dict(
+                           overlaying = 'y',
+                           range = [-1,1],
+                           side = 'right',
+                           title = 'Sentiment score',
+                           zeroline = False
+                           ),
+                       bargap = 0.2,
+                       plot_bgcolor = "#f1f1f1"
+                        )
+    
     fig = go.Figure(data=data, layout=layout)
 
     return(py.plot(fig, output_type = 'div'))
