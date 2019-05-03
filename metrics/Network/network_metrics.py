@@ -1,7 +1,7 @@
 import psycopg2
 import consts
 from metrics.Network.partition import *
-from sentiment_analysis import tweet_sentiment
+from sentiment_analysis import sentiment_compound_score
 
 connection = psycopg2.connect(**consts.db_creds)
 
@@ -64,7 +64,7 @@ def get_sentiment(groups, tweets):
     total_sentiment = [[0 for _ in range(len(groups))] for _ in range(len(groups))]
     for tweet in tweets:
         if tweet[0] in groups_dict and tweet[1] in groups_dict:
-            total_sentiment[groups_dict[tweet[0]]][groups_dict[tweet[1]]] += tweet_sentiment(tweet[2])
+            total_sentiment[groups_dict[tweet[0]]][groups_dict[tweet[1]]] += sentiment_compound_score(tweet[2])
     return total_sentiment
 
 
