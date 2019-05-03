@@ -3,7 +3,7 @@ import json
 import zipfile
 import os
 import io
-import networkx as nx
+
 import metrics.Network.influence_network as infnet
 
 
@@ -34,6 +34,7 @@ class Metrics:
         self.coeff_color = "grey"
         self.network = None
         self.coeff_explanation = None
+        self.hashtags = None
 
 
 metrics_data = Metrics()
@@ -58,7 +59,7 @@ def index():
 def second():
     if request.method == 'POST':
         # The things we get from POST
-        hashtags = json.loads(request.form['hidden-tags'])
+        metrics_data.hashtags = json.loads(request.form['hidden-tags'])
         start_date = request.form['start-date'] + " 00:00:00"
         end_date = request.form['end-date'] + " 23:59:59"
         start_date_timestamp = datetime.datetime.strptime(start_date,
@@ -68,14 +69,14 @@ def second():
 
         metrics_data.tweets = shill_api.get_tweets(start_date_timestamp,
                                                    end_date_timestamp,
-                                                   hashtags)
+                                                   metrics_data.hashtags)
         metrics_data.traffic_increase_plot = traffic.graph_traffic_and_spikes(
             metrics_data.tweets, start_date, end_date, 60)
 
         metrics_data.similar_text = simtex.cluster_tweets_by_text(shill_api, 4)
 
         # Networking
-        metrics_data.network = infnet.sub_network(hashtags)
+        metrics_data.network = infnet.sub_network(metrics_data.hashtags)
 
         if len(metrics_data.tweets) == 0:
             metrics_data.coeff_dictionary = "No tweets found"
@@ -183,10 +184,13 @@ def metric3():
         #                                                 metrics_data.tweets)
         # if similar_or_exact == []:
         #     continue
+        # suspicious = [s['usr'] for s in similar_or_exact]
 
         exist = True
-        # suspicious = [s['usr'] for s in similar_or_exact]
         suspicious = shill_api.get_users_who_tweeted(cluster['text'])
+        if not any(hashtag in cluster['text'] for hashtag in
+                   metrics_data.hashtags):
+            continue
 
         html += """<li>
                         <div class="collapsible-header">
@@ -215,10 +219,12 @@ def metric3():
 
 @app.route('/metric4', methods=['GET'])
 def metric4():
-
     trace = go.Scatter(
-        x=[],
-        y=[],
+        x=[-5, 5, -5, 5],
+        y=[8, 8, -9, -9],
+        text=['Group 1', 'Group 2',
+              'Bots <br> Group 1', 'Bots <br> Group 2'],
+        mode='text',
     )
     
     fig = go.Figure(
@@ -350,6 +356,50 @@ def metric4():
                 'line': {
                     'color': 'black',
                     'width': 9,
+                },
+            },
+            {
+                'type': 'line',
+                'x0': -3.1,
+                'y0': -3.6,
+                'x1': 3.5,
+                'y1': 3.2,
+                'line': {
+                    'color': 'black',
+                    'width': 9,
+                },
+            },
+            {
+                'type': 'line',
+                'x0': -3.7,
+                'y0': -3,
+                'x1': 3,
+                'y1': 3.8,
+                'line': {
+                    'color': 'black',
+                    'width': 2,
+                },
+            },
+            {
+                'type': 'line',
+                'x0': -3.3,
+                'y0': 3.7,
+                'x1': 3.7,
+                'y1': -3.3,
+                'line': {
+                    'color': 'black',
+                    'width': 9,
+                },
+            },
+            {
+                'type': 'line',
+                'x0': -3.5,
+                'y0': 3.3,
+                'x1': 3.2,
+                'y1': -3.5,
+                'line': {
+                    'color': 'black',
+                    'width': 2,
                 },
             }
             ]
