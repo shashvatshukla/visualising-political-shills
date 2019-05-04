@@ -79,9 +79,17 @@
     });
 
     $(document).ready(function () {
-      $('.datepicker').datepicker({
+      $('#start-date').datepicker({
         maxDate: new Date(),
         format: 'yyyy-mm-dd',
+        defaultDate: new Date(2017,10,16),
+        setDefaultDate: true,
+      });
+      $('#end-date').datepicker({
+        maxDate: new Date(),
+        format: 'yyyy-mm-dd',
+        defaultDate: new Date(2017,10,17),
+        setDefaultDate: true,
       });
     });
 
