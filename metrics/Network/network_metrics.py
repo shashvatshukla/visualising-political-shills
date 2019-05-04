@@ -103,6 +103,10 @@ def sub_network(keywords):
             print(i[2])
             break
     total_tweets, total_sentiment = get_sentiment((group1h, group2h, group1b, group2b), tweets)
+    average_sentiment = [[0 for _ in range(4)] for _ in range(4)]
+    for i in range(4):
+        for j in range(4):
+            average_sentiment = total_sentiment[i][j] / total_tweets[i][j]
     interaction_tweets = get_interaction_tweets([group1h, group2h, group1b, group2b], tweets)
 
-    return total_tweets, total_sentiment, interaction_tweets
+    return total_tweets, average_sentiment, interaction_tweets
