@@ -96,13 +96,10 @@ def partition_bots(users_list):
     api = ShillSearchAPI.create_API()
     humans = []
     bots = []
-    print(len(users_list))
     for i, user in enumerate(users_list):
         count += 1
         if does_user_exist(user, failed=True):
             continue
-        if count % 100 == 0:
-            print(i, count)
         try:
             metadata = api.get_metadata(user, True, True)
             if classify(get_record_from_dict(metadata)[0:8]):
