@@ -1,7 +1,7 @@
 import psycopg2
 import consts
 from metrics.Network.partition import partition_bots, partition_groups
-from sentiment_analysis import sentiment_compound_score
+from metrics.sentiment_analysis import sentiment_compound_score
 
 connection = psycopg2.connect(**consts.db_creds)
 
