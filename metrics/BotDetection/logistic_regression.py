@@ -127,7 +127,7 @@ def save_model():
 
 def load_model():
     global logit_model
-    f = open(r"C:\Users\danie\git\visualising-political-shills\metrics\BotDetection\logit_model.sm", "rb")
+    f = open(r"C:\Users\Blade\PyCharmProjects\visualising-political-shills\metrics\BotDetection\logit_model.sm", "rb")
     logit_model = pickle.load(f)
 
 

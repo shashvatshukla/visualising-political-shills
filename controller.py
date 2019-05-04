@@ -1,21 +1,20 @@
 import datetime
-import json
-import zipfile
-import os
 import io
-
-import metrics.Network.influence_network as infnet
-
+import json
+import os
+import zipfile
+import colour
 
 import plotly.graph_objs as go
 import plotly.offline as py
 from flask import *
 
 import consts
+import metrics.Network.network_metrics as netmet
 import metrics.api_for_db as api
 import metrics.coefficient_of_traffic_manipulation as coeff
-import metrics.traffic_increase_pattern as traffic
 import metrics.similar_text as simtex
+import metrics.traffic_increase_pattern as traffic
 
 app = Flask(__name__)
 
@@ -35,6 +34,7 @@ class Metrics:
         self.network = None
         self.coeff_explanation = None
         self.hashtags = None
+        self.sub_network = None
 
 
 metrics_data = Metrics()
@@ -74,6 +74,7 @@ def second():
             metrics_data.tweets, start_date, end_date, 60)
 
         metrics_data.similar_text = simtex.cluster_tweets_by_text(shill_api, 4)
+        metrics_data.sub_network = netmet.sub_network(metrics_data.hashtags)
 
         if len(metrics_data.tweets) == 0:
             metrics_data.coeff_dictionary = "No tweets found"
@@ -232,6 +233,17 @@ def metric3():
 
 @app.route('/metric4', methods=['GET'])
 def metric4():
+    def sentiment_to_bin(val):
+        scaled = int(val * 1000)
+        bin = 0
+        left = -200
+        right = 200
+        inc = (abs(left) + abs(right)) / 100
+        while left < right and left < scaled:
+            left += inc
+            bin += 1
+        return bin
+
     text = go.Scatter(
         x=[-5, 5, -5, 5],
         y=[8, 8, -9, -9],
@@ -239,23 +251,54 @@ def metric4():
               'Bots <br> Group 1', 'Bots <br> Group 2'],
         mode='text',
     )
-    coords_for_lines = [
-        [[-3, 0, 3], [5.5, 5.5, 5.5], "right"],
-        [[-3, 0, 3], [4.5, 4.5, 4.5], "left"],
-        [[5.5, 5.5, 5.5], [3, 0, -3], "down"],
-        [[4.5, 4.5, 4.5], [3, 0, -3], "up"],
-        [[-5.5, -5.5, -5.5], [3, 0, -3], "down"],
-        [[-4.5, -4.5, -4.5], [3, 0, -3.5], "up"],
-        [[-3.5, 2, 4.5], [-4.5, 1, 3.5], "ne"],
-        [[-4, -2, 3.5], [-3, -1, 4.5], "sw"],
-        [[4, -1, -3.5], [-3, 2, 4.5], "nw"],
-        [[-4, 1, 3.5], [3, -2, -4.5], "se"],
 
+    max_tw = max([max(metrics_data.sub_network[0][x]) for x in range(4)])
+    max_width = 8
+    min_width = 1
+    red = colour.Color("blue")
+    colors = list(map(lambda c: c.hex,
+                      list(red.range_to(colour.Color("red"), 100))))
+
+    coords_for_lines = [
+        [[-3, 0, 3], [5.5, 5.5, 5.5], "right",
+         colors[sentiment_to_bin(metrics_data.sub_network[1][0][1])],
+         max(min_width, max_width * metrics_data.sub_network[0][0][1] / max_tw)],
+        [[-3, 0, 3], [4.5, 4.5, 4.5], "left",
+         colors[sentiment_to_bin(metrics_data.sub_network[1][1][0])],
+         max(min_width, max_width * metrics_data.sub_network[0][1][0] / max_tw)],
+        [[5.5, 5.5, 5.5], [3, 0, -3], "down",
+         colors[sentiment_to_bin(metrics_data.sub_network[1][1][3])],
+         max(min_width, max_width * metrics_data.sub_network[0][1][3] / max_tw)],
+        [[4.5, 4.5, 4.5], [3, 0, -3], "up",
+         colors[sentiment_to_bin(metrics_data.sub_network[1][3][1])],
+         max(min_width, max_width * metrics_data.sub_network[0][3][1] / max_tw)],
+        [[-5.5, -5.5, -5.5], [3, 0, -3], "down",
+         colors[sentiment_to_bin(metrics_data.sub_network[1][0][2])],
+         max(min_width, max_width * metrics_data.sub_network[0][0][2] / max_tw)],
+        [[-4.5, -4.5, -4.5], [3, 0, -3.5], "up",
+         colors[sentiment_to_bin(metrics_data.sub_network[1][2][0])],
+         max(min_width, max_width * metrics_data.sub_network[0][2][0] / max_tw)],
+        [[-3.5, 2, 4.5], [-4.5, 1, 3.5], "ne",
+         colors[sentiment_to_bin(metrics_data.sub_network[1][2][1])],
+         max(min_width, max_width * metrics_data.sub_network[0][2][1] / max_tw)],
+        [[-4, -2, 3.5], [-3, -1, 4.5], "sw",
+         colors[sentiment_to_bin(metrics_data.sub_network[1][1][2])],
+         max(min_width, max_width * metrics_data.sub_network[0][1][2] / max_tw)],
+        [[4, -1, -3.5], [-3, 2, 4.5], "nw",
+         colors[sentiment_to_bin(metrics_data.sub_network[1][3][0])],
+         max(min_width, max_width * metrics_data.sub_network[0][3][0] / max_tw)],
+        [[-4, 1, 3.5], [3, -2, -4.5], "se",
+         colors[sentiment_to_bin(metrics_data.sub_network[1][0][3])],
+         max(min_width, max_width * metrics_data.sub_network[0][0][3] / max_tw)],
     ]
+
     lines = [go.Scatter(
         x=coords[0],
         y=coords[1],
         mode='lines+markers',
+        line=dict(
+            color=coords[3],
+            width=coords[4]),
         marker=dict(
             size=15,
             symbol="triangle-" + coords[2]
@@ -269,10 +312,10 @@ def metric4():
             xaxis=dict(
                 range=[-10, 10],
                 autorange=True,
-                # showgrid=False,
-                # zeroline=False,
-                # showline=False,
-                # ticks='',
+                showgrid=False,
+                zeroline=False,
+                showline=False,
+                ticks='',
                 showticklabels=False
             ),
             yaxis=dict(
@@ -280,11 +323,11 @@ def metric4():
                 scaleratio=1,
                 range=[-10, 10],
                 autorange=True,
-                # showgrid=False,
-                # zeroline=False,
-                # showline=False,
-                # ticks='',
-                # showticklabels=False
+                showgrid=False,
+                zeroline=False,
+                showline=False,
+                ticks='',
+                showticklabels=False
             ),
             shapes=[
             {
