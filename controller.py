@@ -76,7 +76,7 @@ def second():
         metrics_data.similar_text = simtex.cluster_tweets_by_text(shill_api, 4)
 
         # Networking
-        metrics_data.network = infnet.sub_network(metrics_data.hashtags)
+        # network = infnet.sub_network(metrics_data.hashtags)
 
         if len(metrics_data.tweets) == 0:
             metrics_data.coeff_dictionary = "No tweets found"
@@ -235,25 +235,47 @@ def metric3():
 
 @app.route('/metric4', methods=['GET'])
 def metric4():
-    trace = go.Scatter(
+    text = go.Scatter(
         x=[-5, 5, -5, 5],
         y=[8, 8, -9, -9],
         text=['Group 1', 'Group 2',
               'Bots <br> Group 1', 'Bots <br> Group 2'],
         mode='text',
     )
+    coords_for_lines = [
+        [[-3, 0, 3], [5.5, 5.5, 5.5], "right"],
+        [[-3, 0, 3], [4.5, 4.5, 4.5], "left"],
+        [[5.5, 5.5, 5.5], [3, 0, -3], "down"],
+        [[4.5, 4.5, 4.5], [3, 0, -3], "up"],
+        [[-5.5, -5.5, -5.5], [3, 0, -3], "down"],
+        [[-4.5, -4.5, -4.5], [3, 0, -3.5], "up"],
+        [[-3.5, 2, 4.5], [-4.5, 1, 3.5], "ne"],
+        [[-4, -2, 3.5], [-3, -1, 4.5], "sw"],
+        [[4, -1, -3.5], [-3, 2, 4.5], "nw"],
+        [[-4, 1, 3.5], [3, -2, -4.5], "se"],
+
+    ]
+    lines = [go.Scatter(
+        x=coords[0],
+        y=coords[1],
+        mode='lines+markers',
+        marker=dict(
+            size=15,
+            symbol="triangle-" + coords[2]
+        )
+    ) for coords in coords_for_lines]
     
     fig = go.Figure(
-        data=[trace],
+        data=[text] + lines,
         layout=go.Layout(
             hovermode='closest',
             xaxis=dict(
                 range=[-10, 10],
                 autorange=True,
-                showgrid=False,
-                zeroline=False,
-                showline=False,
-                ticks='',
+                # showgrid=False,
+                # zeroline=False,
+                # showline=False,
+                # ticks='',
                 showticklabels=False
             ),
             yaxis=dict(
@@ -261,11 +283,11 @@ def metric4():
                 scaleratio=1,
                 range=[-10, 10],
                 autorange=True,
-                showgrid=False,
-                zeroline=False,
-                showline=False,
-                ticks='',
-                showticklabels=False
+                # showgrid=False,
+                # zeroline=False,
+                # showline=False,
+                # ticks='',
+                # showticklabels=False
             ),
             shapes=[
             {
@@ -308,116 +330,6 @@ def metric4():
                 'x1': -7.5,
                 'y1': -7.5,
             },
-            {
-                'type': 'line',
-                'x0': -2.5,
-                'y0': 5.5,
-                'x1': 2.5,
-                'y1': 5.5,
-                'line': {
-                    'color': 'black',
-                    'width': 3,
-                },
-            },
-            {
-                'type': 'line',
-                'x0': -2.5,
-                'y0': 4.5,
-                'x1': 2.5,
-                'y1': 4.5,
-                'line': {
-                    'color': 'black',
-                    'width': 9,
-                },
-            },
-            {
-                'type': 'line',
-                'x0': 5.5,
-                'y0': 2.5,
-                'x1': 5.5,
-                'y1': -2.5,
-                'line': {
-                    'color': 'black',
-                    'width': 9,
-                },
-            },
-            {
-                'type': 'line',
-                'x0': 4.5,
-                'y0': 2.5,
-                'x1': 4.5,
-                'y1': -2.5,
-                'line': {
-                    'color': 'black',
-                    'width': 9,
-                },
-            },
-            {
-                'type': 'line',
-                'x0': -5.5,
-                'y0': 2.5,
-                'x1': -5.5,
-                'y1': -2.5,
-                'line': {
-                    'color': 'black',
-                    'width': 9,
-                },
-            },
-            {
-                'type': 'line',
-                'x0': -4.5,
-                'y0': 2.5,
-                'x1': -4.5,
-                'y1': -2.5,
-                'line': {
-                    'color': 'black',
-                    'width': 9,
-                },
-            },
-            {
-                'type': 'line',
-                'x0': -3.1,
-                'y0': -3.6,
-                'x1': 3.5,
-                'y1': 3.2,
-                'line': {
-                    'color': 'black',
-                    'width': 9,
-                },
-            },
-            {
-                'type': 'line',
-                'x0': -3.7,
-                'y0': -3,
-                'x1': 3,
-                'y1': 3.8,
-                'line': {
-                    'color': 'black',
-                    'width': 2,
-                },
-            },
-            {
-                'type': 'line',
-                'x0': -3.3,
-                'y0': 3.7,
-                'x1': 3.7,
-                'y1': -3.3,
-                'line': {
-                    'color': 'black',
-                    'width': 9,
-                },
-            },
-            {
-                'type': 'line',
-                'x0': -3.5,
-                'y0': 3.3,
-                'x1': 3.2,
-                'y1': -3.5,
-                'line': {
-                    'color': 'black',
-                    'width': 2,
-                },
-            }
             ]
         )
     )
