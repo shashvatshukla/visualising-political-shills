@@ -64,7 +64,7 @@ def get_sentiment(groups, tweets):
     total_sentiment = [[0 for _ in range(len(groups))] for _ in range(len(groups))]
     for tweet in tweets:
         if tweet[0] in groups_dict and tweet[1] in groups_dict:
-            total_sentiment[groups_dict[tweet[0]]][groups_dict[tweet[1]]] += sentiment_compound_score(tweet[2])
+            total_sentiment[groups_dict[tweet[0]]][groups_dict[tweet[1]]] += sentiment_compound_score({"text": tweet[2]})
             total_tweets[groups_dict[tweet[0]]][groups_dict[tweet[1]]] += 1
     return total_tweets, total_sentiment
 
