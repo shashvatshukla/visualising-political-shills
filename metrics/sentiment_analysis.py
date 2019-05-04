@@ -3,6 +3,8 @@ from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 
 # Sentiment Analysis Graphs
 
+analyzer = SentimentIntensityAnalyzer()
+
 
 def sentiment_compound_score(tweet):
     """
@@ -17,7 +19,6 @@ def sentiment_compound_score(tweet):
     # Separate the tweet into sentences and compute the score for each sentence, then the average.
     sentence_list = tokenize.sent_tokenize(tweet["text"])
     tweet_sentiments = 0.0
-    analyzer = SentimentIntensityAnalyzer()
     for sentence in sentence_list:
         sentiment = analyzer.polarity_scores(sentence)
         tweet_sentiments += sentiment["compound"]
