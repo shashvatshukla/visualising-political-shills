@@ -102,7 +102,7 @@ def sub_network(keywords):
         if i[0] in group1h and i[1] in group2h:
             print(i[2])
             break
-    total_tweets, total_sentiment = get_sentiment((group1h, group1b, group2h, group2b), tweets)
-    interaction_tweets = get_interaction_tweets([group1h, group1b, group2h, group2b], tweets)
+    total_tweets, total_sentiment = get_sentiment((group1h, group2h, group1b, group2b), tweets)
+    interaction_tweets = get_interaction_tweets([group1h, group2h, group1b, group2b], tweets)
 
     return total_tweets, total_sentiment, interaction_tweets
