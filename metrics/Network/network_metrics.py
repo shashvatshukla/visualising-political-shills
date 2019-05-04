@@ -60,11 +60,13 @@ def get_sentiment(groups, tweets):
     for i, group in enumerate(groups):
         for user in group:
             groups_dict[user] = i
+    total_tweets = [[0 for _ in range(len(groups))] for _ in range(len(groups))]
     total_sentiment = [[0 for _ in range(len(groups))] for _ in range(len(groups))]
     for tweet in tweets:
         if tweet[0] in groups_dict and tweet[1] in groups_dict:
             total_sentiment[groups_dict[tweet[0]]][groups_dict[tweet[1]]] += sentiment_compound_score(tweet[2])
-    return total_sentiment
+            total_tweets[groups_dict[tweet[0]]][groups_dict[tweet[1]]] += 1
+    return total_tweets, total_sentiment
 
 
 def sub_network(keywords):
@@ -86,5 +88,5 @@ def sub_network(keywords):
         if i[0] in group1h and i[1] in group2h:
             print(i[2])
             break
-    sentiment = get_sentiment((group1h, group1b, group2h, group2b), tweets)
-    return group1h, group1b, group2h, group2b, sentiment
+    total_tweets, total_sentiment = get_sentiment((group1h, group1b, group2h, group2b), tweets)
+    return group1h, group1b, group2h, group2b, total_tweets, total_sentiment
