@@ -69,6 +69,20 @@ def get_sentiment(groups, tweets):
     return total_tweets, total_sentiment
 
 
+def get_interaction_tweets(groups, tweets):
+    interaction_tweets = [[0 for _ in range(len(groups))] for _ in range(len(groups))]
+    for i in range(len(groups)):
+        for j in range(len(groups)):
+            output = []
+            for z in tweets:
+                if z[0] in groups[i] and z[1] in groups[j]:
+                    output.append(z[2])
+                    if len(output) == 20:
+                        break
+            interaction_tweets[i][j] = output
+    return interaction_tweets
+
+
 def sub_network(keywords):
     tweets = get_tweets(keywords)
     users = set()
@@ -89,4 +103,6 @@ def sub_network(keywords):
             print(i[2])
             break
     total_tweets, total_sentiment = get_sentiment((group1h, group1b, group2h, group2b), tweets)
-    return group1h, group1b, group2h, group2b, total_tweets, total_sentiment
+    interaction_tweets = get_interaction_tweets([group1h, group1b, group2h, group2b], tweets)
+
+    return total_tweets, total_sentiment, interaction_tweets
