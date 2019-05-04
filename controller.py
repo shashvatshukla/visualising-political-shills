@@ -75,9 +75,6 @@ def second():
 
         metrics_data.similar_text = simtex.cluster_tweets_by_text(shill_api, 4)
 
-        # Networking
-        # network = infnet.sub_network(metrics_data.hashtags)
-
         if len(metrics_data.tweets) == 0:
             metrics_data.coeff_dictionary = "No tweets found"
             metrics_data.avg_tweets = "No tweets found"
