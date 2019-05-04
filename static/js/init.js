@@ -82,13 +82,13 @@
       $('#start-date').datepicker({
         maxDate: new Date(),
         format: 'yyyy-mm-dd',
-        defaultDate: new Date(2017,10,16),
+        defaultDate: new Date(2017,10,15),
         setDefaultDate: true,
       });
       $('#end-date').datepicker({
         maxDate: new Date(),
         format: 'yyyy-mm-dd',
-        defaultDate: new Date(2017,10,17),
+        defaultDate: new Date(2017,10,16),
         setDefaultDate: true,
       });
     });
