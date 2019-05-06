@@ -3,7 +3,6 @@ import io
 import json
 import os
 import zipfile
-import colour
 
 import plotly.graph_objs as go
 import plotly.offline as py
@@ -233,16 +232,21 @@ def metric3():
 
 @app.route('/metric4', methods=['GET'])
 def metric4():
-    def sentiment_to_bin(val):
-        scaled = int(val * 1000)
-        bin = 0
-        left = -200
-        right = 200
-        inc = (abs(left) + abs(right)) / 100
-        while left < right and left < scaled:
-            left += inc
-            bin += 1
-        return bin
+    def color(val):
+        if val < -0.1:
+            return "#F44336"
+        elif val < 0.05:
+            return "#FFEB3B"
+        else:
+            return "#4CAF50"
+
+    def div_format(list):
+        div = "<span>"
+        for item in list:
+            div += "<br><br>" + item
+
+        div += "</span>"
+        return div
 
     text = go.Scatter(
         x=[-5, 5, -5, 5],
@@ -250,52 +254,62 @@ def metric4():
         text=['Group 1', 'Group 2',
               'Bots <br> Group 1', 'Bots <br> Group 2'],
         mode='text',
+        hoverinfo='text',
     )
 
     max_tw = max([max(metrics_data.sub_network[0][x]) for x in range(4)])
     max_width = 8
     min_width = 1
-    red = colour.Color("blue")
-    colors = list(map(lambda c: c.hex,
-                      list(red.range_to(colour.Color("red"), 100))))
 
     coords_for_lines = [
         [[-3, 0, 3], [5.5, 5.5, 5.5], "right",
-         colors[sentiment_to_bin(metrics_data.sub_network[1][0][1])],
-         max(min_width, max_width * metrics_data.sub_network[0][0][1] / max_tw)],
+         color(metrics_data.sub_network[1][0][1]),
+         max(min_width, max_width * metrics_data.sub_network[0][0][1] / max_tw),
+         metrics_data.sub_network[2][0][1][:5]],
         [[-3, 0, 3], [4.5, 4.5, 4.5], "left",
-         colors[sentiment_to_bin(metrics_data.sub_network[1][1][0])],
-         max(min_width, max_width * metrics_data.sub_network[0][1][0] / max_tw)],
+         color(metrics_data.sub_network[1][1][0]),
+         max(min_width, max_width * metrics_data.sub_network[0][1][0] / max_tw),
+         metrics_data.sub_network[2][1][0][:5]],
         [[5.5, 5.5, 5.5], [3, 0, -3], "down",
-         colors[sentiment_to_bin(metrics_data.sub_network[1][1][3])],
-         max(min_width, max_width * metrics_data.sub_network[0][1][3] / max_tw)],
+         color(metrics_data.sub_network[1][1][3]),
+         max(min_width, max_width * metrics_data.sub_network[0][1][3] / max_tw),
+         metrics_data.sub_network[2][1][3][:5]],
         [[4.5, 4.5, 4.5], [3, 0, -3], "up",
-         colors[sentiment_to_bin(metrics_data.sub_network[1][3][1])],
-         max(min_width, max_width * metrics_data.sub_network[0][3][1] / max_tw)],
+         color(metrics_data.sub_network[1][3][1]),
+         max(min_width, max_width * metrics_data.sub_network[0][3][1] / max_tw),
+         metrics_data.sub_network[2][3][1][:5]],
         [[-5.5, -5.5, -5.5], [3, 0, -3], "down",
-         colors[sentiment_to_bin(metrics_data.sub_network[1][0][2])],
-         max(min_width, max_width * metrics_data.sub_network[0][0][2] / max_tw)],
+         color(metrics_data.sub_network[1][0][2]),
+         max(min_width, max_width * metrics_data.sub_network[0][0][2] / max_tw),
+         metrics_data.sub_network[2][0][2][:5]],
         [[-4.5, -4.5, -4.5], [3, 0, -3.5], "up",
-         colors[sentiment_to_bin(metrics_data.sub_network[1][2][0])],
-         max(min_width, max_width * metrics_data.sub_network[0][2][0] / max_tw)],
+         color(metrics_data.sub_network[1][2][0]),
+         max(min_width, max_width * metrics_data.sub_network[0][2][0] / max_tw),
+         metrics_data.sub_network[2][2][0][:5]],
         [[-3.5, 2, 4.5], [-4.5, 1, 3.5], "ne",
-         colors[sentiment_to_bin(metrics_data.sub_network[1][2][1])],
-         max(min_width, max_width * metrics_data.sub_network[0][2][1] / max_tw)],
+         color(metrics_data.sub_network[1][2][1]),
+         max(min_width, max_width * metrics_data.sub_network[0][2][1] / max_tw),
+         metrics_data.sub_network[2][2][1][:5]],
         [[-4, -2, 3.5], [-3, -1, 4.5], "sw",
-         colors[sentiment_to_bin(metrics_data.sub_network[1][1][2])],
-         max(min_width, max_width * metrics_data.sub_network[0][1][2] / max_tw)],
+         color(metrics_data.sub_network[1][1][2]),
+         max(min_width, max_width * metrics_data.sub_network[0][1][2] / max_tw),
+         metrics_data.sub_network[2][1][2][:5]],
         [[4, -1, -3.5], [-3, 2, 4.5], "nw",
-         colors[sentiment_to_bin(metrics_data.sub_network[1][3][0])],
-         max(min_width, max_width * metrics_data.sub_network[0][3][0] / max_tw)],
+         color(metrics_data.sub_network[1][3][0]),
+         max(min_width, max_width * metrics_data.sub_network[0][3][0] / max_tw),
+         metrics_data.sub_network[2][3][0][:5]],
         [[-4, 1, 3.5], [3, -2, -4.5], "se",
-         colors[sentiment_to_bin(metrics_data.sub_network[1][0][3])],
-         max(min_width, max_width * metrics_data.sub_network[0][0][3] / max_tw)],
+         color(metrics_data.sub_network[1][0][3]),
+         max(min_width, max_width * metrics_data.sub_network[0][0][3] / max_tw),
+         metrics_data.sub_network[2][0][3][:5]],
     ]
 
     lines = [go.Scatter(
         x=coords[0],
         y=coords[1],
         mode='lines+markers',
+        hoverinfo='text',
+        text=['', div_format(coords[5]), ''],
         line=dict(
             color=coords[3],
             width=coords[4]),
@@ -308,6 +322,7 @@ def metric4():
     fig = go.Figure(
         data=[text] + lines,
         layout=go.Layout(
+            showlegend=False,
             hovermode='closest',
             xaxis=dict(
                 range=[-10, 10],
