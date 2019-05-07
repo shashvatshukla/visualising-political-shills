@@ -51,7 +51,7 @@
           <div class = "mdl-cell mdl-cell--6-col">
             <div class="demo-card-wide mdl-card mdl-shadow--2dp" style="width: 100%">
                 <div class="mdl-card__title">
-                    <h2 class="mdl-card__title-text">Traffic and sentiment over time:</h2>
+                    <h2 class="mdl-card__title-text">Traffic and sentiment over time</h2>
                 </div>
               {{ div_traffic_increase }}
               <!-- <div class="mdl-card__actions mdl-card--border">
@@ -64,7 +64,7 @@
           <div class = "mdl-cell mdl-cell--6-col">
             <div class="demo-card-wide mdl-card mdl-shadow--2dp" style="width: 100%">
               <div class="mdl-card__title">
-                <h2 class="mdl-card__title-text">Traffic manipulation:</h2>
+                <h2 class="mdl-card__title-text">Traffic manipulation</h2>
               </div>
               <div class="mdl-card__supporting-text">
                 <h3 id="traffic_manipulation">{{coeff_text}}</h3>
@@ -106,10 +106,14 @@
                   <h2 class="mdl-card__title-text">Network Partitioning</h2>
                 </div>
                 <div class="mdl-card__supporting-text">
-                   A list of repeated tweets; each list element displays the
-                  tweet's text and the number of times it has been sent.
-                  Upon clicking on an element, a list of the users that tweeted
-                  that text (as well as very similar ones) will be shown.
+                  See a partition of the tweet network based on binary
+                  preferences; this will be displayed as a graph with 4
+                  nodes: two nodes for humans from Group 1 and Group 2, two nodes
+                  for bots in Group 1 and Group 2. The thicker the edge between
+                  2 nodes, the more interactions between the nodes. Edge colors
+                  represent the average sentiment of the interactions between
+                  2 groups: green means positive, yellow means neutral, red
+                  means negative.
                 </div>
                 <div class="mdl-card__actions mdl-card--border">
                   <a class="mdl-button mdl-button--colored mdl-js-button mdl-js-ripple-effect" href="\metric4" action="\metric1" method="post">
