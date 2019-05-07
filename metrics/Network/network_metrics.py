@@ -44,7 +44,7 @@ def get_tweets(keywords):
                        FROM interactions
                        INNER JOIN tweets
                        ON tweets.twid = interactions.twid
-                       WHERE tweets.text LIKE %s """ + "AND tweets.text LIKE %s' " * (len(keywords) - 1)
+                       WHERE tweets.text LIKE %s """ + "OR tweets.text LIKE %s " * (len(keywords) - 1)
     cursor = connection.cursor()
     cursor.execute(select_tweets, ['%'+i+'%' for i in keywords])
     fetched = [None]
