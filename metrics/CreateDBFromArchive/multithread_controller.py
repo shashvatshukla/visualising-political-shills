@@ -8,6 +8,8 @@ import psycopg2
 import worker
 import consts
 
+lock = multiprocessing.Lock()
+
 
 class Controller:
     def __init__(self, archive_path, words):
@@ -24,8 +26,8 @@ class Controller:
                 if file.endswith("bz2"):
                     self._total_files += 1
 
-    def _worker(self, task_queue):
-        DBworker = worker.Worker(self._words)
+    def _worker(self, task_queue, lock):
+        DBworker = worker.Worker(self._words, lock)
         while not task_queue.empty():
             crt_task = task_queue.get()
             DBworker.json_to_db(crt_task)
@@ -71,7 +73,9 @@ class Controller:
                                       usr VARCHAR (255) NOT NULL,
                                       twid VARCHAR (255) NOT NULL,
                                       md5_hash VARCHAR (255) NOT NULL,
-                                      rt_status BOOLEAN NOT NULL);
+                                      rt_status BOOLEAN NOT NULL,
+                                      screen_name VARCHAR(55) NOT NULL,
+                                      retweet_text TEXT);
                                  '''
             cursor.execute(create_table_query)
         except psycopg2.Error as error:
@@ -117,7 +121,7 @@ class Controller:
         start = time.time()
         for w in range(n_processes):
             p = multiprocessing.Process(
-                target=self._worker, args=(full_task_queue,))
+                target=self._worker, args=(full_task_queue, lock))
             processes.append(p)
             p.start()
 
