@@ -5,6 +5,7 @@ from tweepy import API
 from tweepy import AppAuthHandler
 from tweepy import OAuthHandler
 from tweepy import Cursor
+import tweepy
 
 from metrics.BotDetection.helper_functions import add_to_db, get_record_from_dict
 
@@ -115,19 +116,27 @@ class ShillAPI:
         :return: list containing the users.
 
         """
-        if screen_names is not None:
-            input_size = len(screen_names)
-            users = self._appauth_api.lookup_users(screen_names=screen_names)
-        elif user_ids is not None:
-            input_size = len(user_ids)
-            users = self._appauth_api.lookup_users(user_ids=user_ids)
-        else:
-            raise ValueError("At least one of screen_names or user_ids must be given")
+        try:
+            if screen_names is not None:
+                input_size = len(screen_names)
+                users = self._appauth_api.lookup_users(screen_names=screen_names)
+            elif user_ids is not None:
+                input_size = len(user_ids)
+                users = self._appauth_api.lookup_users(user_ids=user_ids)
+            else:
+                raise ValueError("At least one of screen_names or user_ids must be given")
+        except tweepy.error.TweepError as tweep:
+            print(screen_names, user_ids, tweep.response.text)
+            if str(tweep) != "[{'code': 17, 'message': 'No user matches for specified terms.'}]":
+                raise
+            return []
         user_data = []
         current_user = 0
+        if users is None:
+            print("users is none")
         for i in range(input_size):
             if (screen_names is not None and users[current_user].screen_name.lower() == screen_names[i].lower()) or\
-                    users[current_user].id_str == user_ids[i]:
+                   (user_ids is not None and users[current_user].id_str == user_ids[i]):
                 user_data.append({
                                  "usr_id": users[current_user].id_str,
                                  "screen_name": users[current_user].screen_name,
