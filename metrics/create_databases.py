@@ -49,8 +49,18 @@ def create_dbs():
                           UNIQUE (usr, other_usr)); '''
     try:
         cursor.execute(create_table_1)
-        cursor.execute("CREATE INDEX usr_id_index(usr_id)")
-        cursor.execute("CREATE INDEX screen_name_index(screen_name)")
+    except psycopg2.ProgrammingError:
+        connection.rollback()
+    try:
+        cursor.execute("CREATE INDEX usr_id_index ON user_metadata (usr_id)")
+    except psycopg2.ProgrammingError:
+        connection.rollback()
+    try:
+        cursor.execute("CREATE INDEX screen_name_index ON user_metadata (screen_name)")
+    except psycopg2.ProgrammingError:
+        connection.rollback()
+    try:
+        cursor.execute("CREATE INDEX emp_up_name ON user_metadata (UPPER(screen_name))")
     except psycopg2.ProgrammingError:
         connection.rollback()
     try:
