@@ -45,7 +45,7 @@ def add_interaction(usr, other_usr, interaction, time, twid):
     cursor = connection.cursor()
     insert = ''' INSERT INTO interactions
                      (usr, other_usr, interaction, time, topic_code, twid)
-                     VALUES (%s, %s, %s, %s, 'test'); '''
+                     VALUES (%s, %s, %s, %s, 'test', %s); '''
     cursor.execute(insert, [usr, other_usr, interaction, time, twid])
     connection.commit()
 
@@ -80,11 +80,16 @@ def add_lookup(cache, usr, screen_name, interaction, time, twid):
 completed = 0
 
 
-def load_interactions(start):
+def load_interactions(start, keywords):
     global completed
     cursor = connection.cursor()
-    tweets_query = ''' SELECT * FROM tweets; '''
-    cursor.execute(tweets_query)
+    size_query = ''' SELECT COUNT(*) FROM tweets
+                     WHERE (tweets.text LIKE %s) ''' + ('OR (tweets.text LIKE %s)' * (len(keywords) - 1))
+    cursor.execute(size_query, ['%'+i+'%' for i in keywords])
+    print(cursor.fetchall()[0][0])
+    tweets_query = ''' SELECT * FROM tweets
+                       WHERE (tweets.text LIKE %s) ''' + ('OR (tweets.text LIKE %s)' * (len(keywords) - 1))
+    cursor.execute(tweets_query, ['%'+i+'%' for i in keywords])
     tweets = [None]
     previous = 0
     while len(tweets) > 0:
@@ -98,11 +103,13 @@ def load_interactions(start):
                 continue
             tweet = list(tweets[i])
             tweet[2] = re.sub('[^0-9a-zA-Z_:@]+', ' ', tweet[2])
-            users = re.split(' :', tweet[2])
+            users = re.split('[ :]', tweet[2])
+            users = [i for i in users if i != ""]
             if tweet[6]:
                 usr = tweet[3]
                 retweet_len = len(tweet[2].split(":")[0])
-                users = re.split(' :', tweet[2][retweet_len:])
+                users = re.split('[ :]', tweet[2][retweet_len:])
+                users = [i for i in users if i != ""]
                 other_usr = tweet[2].split(":")[0][4:]
                 add_lookup(cache, usr, other_usr, "retweet", tweet[1], tweet[4])
             elif tweet[2][0] == '@':
@@ -121,14 +128,14 @@ def load_interactions(start):
         previous += len(tweets)
 
 
-def load_interactions_continue_on_error(start):
+def load_interactions_continue_on_error(start, keywords):
     global completed
     completed = start
     while True:
         try:
-            load_interactions(completed)
+            load_interactions(completed, keywords)
         except Exception as e:
             print(e)
 
 
-load_interactions_continue_on_error(1117383)
+load_interactions(0, ["Trump"])
