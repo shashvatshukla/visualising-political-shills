@@ -13,6 +13,7 @@ class Worker:
     def __init__(self, words, lock):
         self._words = words
         self.lock = lock
+        self.cache = []
         self.cnt = 0
 
     def json_to_db(self, files):
@@ -25,7 +26,6 @@ class Worker:
         except psycopg2.Error as error:
             print("Error while connecting to PostgreSQL", error)
         finally:
-            self.lock.acquire()
             # Batch commit all inserts
             connection.commit()
 
@@ -33,7 +33,24 @@ class Worker:
             if connection:
                 cursor.close()
                 connection.close()
-            self.lock.release()
+
+    def finalise(self):
+        self.lock.acquire()
+        add_user_metadata = """ INSERT INTO user_metadata
+                                (usr_id, screen_name, no_statuses, no_followers, no_friends, no_favourites,
+                                 no_listed, default_profile, geo_enabled, custom_bg_img,
+                                 verified, protected)
+                                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                                ON CONFLICT (usr_id) DO NOTHING; """
+        # Establish connection
+        connection = psycopg2.connect(**consts.db_creds)
+        cursor = connection.cursor()
+        for record in self.cache:
+            cursor.execute(add_user_metadata, record)
+        connection.commit()
+        cursor.close()
+        connection.close()
+        self.lock.release()
 
     def _deal_with_archives(self, files, db_cursor):
         for archive in files:
@@ -95,19 +112,13 @@ class Worker:
                                                         tweet["user"]["screen_name"],
                                                         retweet_text))
 
-                    add_user_metadata = """ INSERT INTO user_metadata
-                                            (usr_id, screen_name, no_statuses, no_followers, no_friends, no_favourites,
-                                             no_listed, default_profile, geo_enabled, custom_bg_img,
-                                             verified, protected)
-                                            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
-                                            ON CONFLICT (usr_id) DO NOTHING; """
                     users = [tweet["user"]]
                     if rt_status == "TRUE":
                         users.append(tweet["retweeted_status"]["user"])
                     for user in users:
-                        db_cursor.execute(add_user_metadata, (user["id_str"], user["screen_name"],
-                                                              user["statuses_count"], user["followers_count"],
-                                                              user["friends_count"], user["favourites_count"],
-                                                              user["listed_count"], user["default_profile"],
-                                                              user["geo_enabled"],  user["profile_use_background_image"],
-                                                              user["verified"], user["protected"]))
+                        self.cache.append((user["id_str"], user["screen_name"],
+                                           user["statuses_count"], user["followers_count"],
+                                           user["friends_count"], user["favourites_count"],
+                                           user["listed_count"], user["default_profile"],
+                                           user["geo_enabled"],  user["profile_use_background_image"],
+                                           user["verified"], user["protected"]))

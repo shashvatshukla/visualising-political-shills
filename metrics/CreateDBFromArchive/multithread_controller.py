@@ -42,6 +42,7 @@ class Controller:
                     print("Files done: " + str(self._n_files_done.value) +
                           " out of " + str(self._total_files),
                           end='\n')
+        DBworker.finalise()
 
     def _populate_tasks(self, task_queue):
         all_files = []
