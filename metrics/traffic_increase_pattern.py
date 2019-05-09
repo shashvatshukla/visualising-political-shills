@@ -78,7 +78,7 @@ def _sentiment_over_time(tweets, bins, tweet_bins_ind):
     count_by_bin = []
     
     max_bin_ind = len(bins)
-    for i in range(0, max_bin_ind):
+    for i in range(0, max_bin_ind + 1):
         sent_by_bin.append(0)
         count_by_bin.append(0)
 
@@ -147,7 +147,7 @@ def graph_traffic_and_spikes(tweets, start_datetime, end_datetime, width, pct_ch
         y = list(map(lambda b: b + 1, spikes_counts)),
         hoverinfo = "text",
         hovertext = list(map(str, spikes_counts)),
-        marker = dict(color = '#BE5057', symbol='triangle-down', size = width/2),
+        marker = dict(color = '#BE5057', symbol='triangle-down'),
         mode = 'markers',
         name = "Spikes",
         xaxis = "x1",
