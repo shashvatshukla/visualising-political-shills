@@ -5,6 +5,7 @@ import numpy
 import collections
 from metrics.sentiment_analysis import *
 
+
 #Traffic increase pattern
 
 def _tweet_times (tweets):
@@ -40,10 +41,10 @@ def _spikes_in_traffic(times, bins, tweet_bins_ind, pct_change_threshold):
     
     :return: A list of (datetime, int) pairs representing the time periods when there were spikes in traffic, together with the number of tweets over that period.
     """
-        
-    # sorted list of (bin, number of tweets in bin) pairs (basically a representation of the histogram as pairs)
-    tweet_bin_counts = sorted(collections.Counter(tweet_bins_ind).items())
 
+     # sorted list of (bin, number of tweets in bin) pairs (basically a representation of the histogram as pairs)
+    tweet_bin_counts = sorted(collections.Counter(tweet_bins_ind).items())
+    
     bins_number = len(tweet_bin_counts)
 
     # list of traffic spike points
@@ -73,22 +74,26 @@ def _sentiment_over_time(tweets, bins, tweet_bins_ind):
 
     :return: A list containing the average sentiment score of the tweets in each bin.
     """
-    tweets_by_bin = []
+    sent_by_bin = []
+    count_by_bin = []
+    
     max_bin_ind = len(bins)
     for i in range(0, max_bin_ind):
-        tweets_by_bin.append([])
+        sent_by_bin.append(0)
+        count_by_bin.append(0)
 
     for i in range(0, len(tweet_bins_ind)):
         curr_bin = tweet_bins_ind[i]
-        tweets_by_bin[curr_bin].append(tweets[i])
+        tweet_sentiment = sentiment_compound_score(tweets[i])
+        sent_by_bin[curr_bin] += tweet_sentiment
+        count_by_bin[curr_bin] += 1
 
-    sentiment_by_bin = []
+    for i in range(0, max_bin_ind):
+        if count_by_bin[i] != 0:
+            sent_by_bin[i] = sent_by_bin[i]/count_by_bin[i]
 
-    for curr_bin in range(max_bin_ind):
-        curr_bin_sentiment = average_sentiment(tweets_by_bin[curr_bin])
-        sentiment_by_bin.append(curr_bin_sentiment)
+    return sent_by_bin
 
-    return sentiment_by_bin
 
 def graph_traffic_and_spikes(tweets, start_datetime, end_datetime, width, pct_change_threshold = 400):
     """
