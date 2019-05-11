@@ -184,10 +184,10 @@ def metric3():
         # suspicious = [s['usr'] for s in similar_or_exact]
 
         exist = True
-        suspicious = shill_api.get_users_who_tweeted(cluster['text'])
         if not any(hashtag in cluster['text'] for hashtag in
                    metrics_data.hashtags):
             continue
+        suspicious = shill_api.get_users_who_tweeted(cluster['text'])
 
         user_links = ""
 
@@ -195,7 +195,7 @@ def metric3():
         usernames = []
         for s in dist_users:
             try:
-                name = shill_api.get_metadata(s)['screen_name']
+                name = shill_api.get_metadata(s, check_cache=True)['screen_name']
                 usernames.append(name)
             except:
                 pass

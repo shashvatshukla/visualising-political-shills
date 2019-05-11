@@ -48,3 +48,4 @@ def average_sentiment(tweets):
         return 0
     else:
         return total_score/len(tweets)
+

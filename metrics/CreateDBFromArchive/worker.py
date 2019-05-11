@@ -104,7 +104,7 @@ class Worker:
                                                  (created_at, text, usr, twid, md5_hash, rt_status, screen_name, retweet_text) 
                                                  VALUES (TIMESTAMP %s, %s, %s, %s, %s, %s, %s, %s)""")
                     db_cursor.execute(add_tweet_query, (timestamp,
-                                                        tweet["text"],
+                                                        text,
                                                         str(tweet["user"]["id"]),
                                                         str(tweet["id"]),
                                                         text_hash,
