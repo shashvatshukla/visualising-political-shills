@@ -57,21 +57,27 @@ class ShillAPI:
         self.connection = psycopg2.connect(**consts.db_creds)
         self.cursor = self.connection.cursor()
 
-    def get_metadata(self, account, check_cache=False, cache_result=False):
+    def get_metadata(self, account, check_cache=False, cache_result=False, user_id=True):
         """
         Return user metadata, could be used for bot detection or just metrics
 
         :parameter account: name of the account, ie. realDonaldTrump
         :parameter check_cache: If True, search for the user in thr db before checking Twitter
         :parameter cache_result: If True, store the result in the db
+        :parameter user_id: True if account is a user id, False if account is a screen_name
         :return: dictionary containing user metadata values.
 
         """
         if check_cache:
-            select_user = """SELECT *
-                             FROM user_metadata
-                             WHERE usr_id = %s OR screen_name = %s"""
-            self.cursor.execute(select_user, [account, account])
+            if user_id:
+                select_user = """SELECT *
+                                 FROM user_metadata
+                                 WHERE usr_id = %s"""
+            else:
+                select_user = """SELECT *
+                                 FROM user_metadata
+                                 WHERE screen_name = %s"""
+            self.cursor.execute(select_user, [account])
             result = self.cursor.fetchall()
             if len(result) > 0:
                 return {
