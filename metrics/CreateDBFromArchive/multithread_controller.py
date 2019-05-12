@@ -78,7 +78,9 @@ class Controller:
                                       screen_name VARCHAR(55) NOT NULL,
                                       retweet_text TEXT);
                                  '''
+            index_query = "CREATE INDEX create_at_index ON tweets (created_at);"
             cursor.execute(create_table_query)
+            cursor.execute(index_query)
         except psycopg2.Error as error:
             print("Error while connecting to PostgreSQL", error)
         finally:
