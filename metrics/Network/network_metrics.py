@@ -2,6 +2,7 @@ import psycopg2
 import consts
 from metrics.Network.partition import partition_bots, partition_groups
 from metrics.sentiment_analysis import sentiment_compound_score
+import numpy as np
 
 connection = psycopg2.connect(**consts.db_creds)
 
@@ -40,10 +41,14 @@ def get_edges(users):
 
 
 def get_tweets(keywords):
-    select_tweets = """SELECT interactions.usr, interactions.other_usr, tweets.text
+    select_tweets = """SELECT interactions.usr, interactions.other_usr, user_1.*, user_2.*
                        FROM interactions
                        INNER JOIN tweets
                        ON tweets.twid = interactions.twid
+                       INNER JOIN user_metadata as user_1
+                       ON user_1.usr_id = interactions.usr
+                       INNER JOIN user_metadata as user_2
+                       ON user_2.usr_id = interactions.other_usr
                        WHERE tweets.text LIKE %s """ + "OR tweets.text LIKE %s " * (len(keywords) - 1)
     cursor = connection.cursor()
     cursor.execute(select_tweets, ['%'+i+'%' for i in keywords])
@@ -86,16 +91,11 @@ def get_interaction_tweets(groups, tweets):
 def sub_network(keywords):
     tweets = get_tweets(keywords)
     users = set()
-    for i, j, _ in tweets:
-        users.add(i)
-        users.add(j)
-    users = list(users)
+    for i, data in enumerate(tweets):
+        users.add((data[0],) + data[4:12])
+        users.add((data[1],) + data[16:24])
+    users = np.array(list(users))
     group1, group2 = partition_groups(users)
-    partition = {}
-    for i in group1:
-        partition[i] = 0
-    for i in group2:
-        partition[i] = 1
     group1h, group1b = partition_bots(group1)
     group2h, group2b = partition_bots(group2)
     for i in tweets:
@@ -106,7 +106,7 @@ def sub_network(keywords):
     average_sentiment = [[0 for _ in range(4)] for _ in range(4)]
     for i in range(4):
         for j in range(4):
-            if total_tweets[i][j]>0:
+            if total_tweets[i][j] > 0:
                 average_sentiment[i][j] = total_sentiment[i][j] / total_tweets[i][j]
     interaction_tweets = get_interaction_tweets([group1h, group2h, group1b, group2b], tweets)
 

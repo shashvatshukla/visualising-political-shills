@@ -70,11 +70,11 @@ def get_incidence_matrix(users_list):
                 i.extend([count, count])
                 j.extend([min(*vertices), max(*vertices)])
                 count += 1
-    return coo_matrix((data, (i, j)), shape = (int(num_edges[0]), len(users_list)))
+    return coo_matrix((data, (i, j)), shape=(int(num_edges[0]), len(users_list)))
 
 
 def partition_groups(users_list):
-    incidence = get_incidence_matrix(users_list)
+    incidence = get_incidence_matrix(users_list[:, 0])
     laplacian = incidence.transpose()*incidence
     w, v = eigs(laplacian)
     inds = np.argsort(np.real(w))
@@ -88,25 +88,27 @@ def partition_groups(users_list):
     return group1, group2
 
 
-count = 0
-
-
 def partition_bots(users_list):
-    global count
     api = ShillSearchAPI.create_API()
     humans = []
     bots = []
     for i, user in enumerate(users_list):
-        count += 1
-        if does_user_exist(user, failed=True):
-            continue
-        try:
-            metadata = api.get_metadata(user, True, True)
-            if classify(get_record_from_dict(metadata)[0:8]):
-                bots.append(user)
+        if user[1] is not None:
+            print(user[1:9])
+            if classify(user[1:9]):
+                bots.append(user[0])
             else:
-                humans.append(user)
-        except tweepy.error.TweepError as tweep:
-            pass
+                humans.append(user[0])
+        else:
+            if does_user_exist(user, failed=True):
+                continue
+            try:
+                metadata = api.get_metadata(user, True, True)
+                if classify(get_record_from_dict(metadata)[0:8]):
+                    bots.append(user[0])
+                else:
+                    humans.append(user[0])
+            except tweepy.error.TweepError as tweep:
+                pass
     return humans, bots
 

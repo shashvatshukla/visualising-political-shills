@@ -82,7 +82,7 @@ def get_data():
     """
     connection = psycopg2.connect(**consts.db_creds)
     cursor = connection.cursor()
-    metadata_query = ''' SELECT * FROM users; '''
+    metadata_query = ''' SELECT * FROM user_metadata; '''
     cursor.execute(metadata_query)
     metadata = cursor.fetchall()
     is_bot_query = ''' SELECT usr_id, is_bot
@@ -134,4 +134,4 @@ def load_model():
 def classify(metadata):
     if logit_model is None:
         load_model()
-    return logit_model.predict(metadata)[0] > 0.5
+    return logit_model.predict([int(i) for i in metadata[0:5]]+[i[0] == 'T' for i in metadata[5:8]])[0] > 0.5
