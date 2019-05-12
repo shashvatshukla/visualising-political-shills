@@ -41,7 +41,7 @@ def get_edges(users):
 
 
 def get_tweets(keywords):
-    select_tweets = """SELECT interactions.usr, interactions.other_usr, user_1.*, user_2.*
+    select_tweets = """SELECT interactions.usr, interactions.other_usr, tweets.text, user_1.*, user_2.*
                        FROM interactions
                        INNER JOIN tweets
                        ON tweets.twid = interactions.twid
@@ -100,16 +100,12 @@ def sub_network(keywords):
     tweets = get_tweets(keywords)
     users = set()
     for i, data in enumerate(tweets):
-        users.add((data[0],) + data[4:12])
-        users.add((data[1],) + data[16:24])
+        users.add((data[0],) + data[5:13])
+        users.add((data[1],) + data[17:25])
     users = np.array(list(users))
     group1, group2 = partition_groups(users)
     group1h, group1b = partition_bots(group1)
     group2h, group2b = partition_bots(group2)
-    for i in tweets:
-        if i[0] in group1h and i[1] in group2h:
-            print(i[2])
-            break
     total_tweets, total_sentiment = get_sentiment((group1h, group2h, group1b, group2b), tweets)
     average_sentiment = [[0 for _ in range(4)] for _ in range(4)]
     for i in range(4):

@@ -94,7 +94,6 @@ def partition_bots(users_list):
     bots = []
     for i, user in enumerate(users_list):
         if user[1] is not None:
-            print(user[1:9])
             if classify(user[1:9]):
                 bots.append(user[0])
             else:
