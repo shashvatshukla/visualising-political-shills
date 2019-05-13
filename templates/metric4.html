@@ -47,7 +47,87 @@
                         <h2 class="mdl-card__title-text">Network Partitioning Graph</h2>
                     </div>
                     <div class="demo-card-wide mdl-card mdl-shadow--2dp" style="width: 100%">
-                         {{network}}
+                        {{network}}
+                        <script>
+                            const tweets = {{data|safe}};
+                            window.alert(tweets);
+                            const element = document.getElementsByClassName("hoverlayer")[0];
+
+                            const MutationObserver = window.MutationObserver || window.WebKitMutationObserver || window.MozMutationObserver;
+                            const observer = new MutationObserver(myFunction);
+                            observer.observe(element, {
+                                childList: true
+                            });
+
+                            window.first = -1;
+                            window.second = -1;
+
+                            function myFunction() {
+                                console.log(element);
+                                console.log(element.innerHTML);
+                                if (element.innerHTML.length > 0) {
+                                    let i = 0;
+                                    let search_str = "<tspan class=\"line\" dy=";
+                                    let count = 0;
+                                    while (count != 3) {
+                                        if (i>element.innerHTML.length){
+                                            window.first = -1;
+                                            window.second = -1;
+                                            return;
+                                        }
+                                        i += 1;
+                                        if (element.innerHTML.slice(i, i + search_str.length) == search_str) {
+                                            count += 1;
+                                        }
+                                    }
+                                    while (element.innerHTML[i] != '>') {
+                                        if (i>element.innerHTML.length){
+                                            window.first = -1;
+                                            window.second = -1;
+                                            return;
+                                        }
+                                        i += 1;
+                                    }
+                                    i += 8;
+                                    let catagories = ["Group 1 Humans", "Group 2 Humans", "Group 1 Bots", "Group 2 Bots"]
+                                    for(let z = 0; z<4; z++){
+                                        if (i>element.innerHTML.length){
+                                            window.first = -1;
+                                            window.second = -1;
+                                            return;
+                                        }
+                                        if(element.innerHTML.slice(i, i + catagories[z].length) == catagories[z]){
+                                            window.first = z;
+                                            i += catagories[z].length
+                                            i += 4
+                                            break;
+                                        }
+                                    }
+                                    for(let z = 0; z<4; z++){
+                                        if (i>element.innerHTML.length){
+                                            window.first = -1;
+                                            window.second = -1;
+                                            return;
+                                        }
+                                        if(element.innerHTML.slice(i, i + catagories[z].length) == catagories[z]){
+                                            window.second = z;
+                                            i += catagories[z].length
+                                            i += 4
+                                            break;
+                                        }
+                                    }
+                                }
+                                else{
+                                    window.first = -1;
+                                    window.second = -1;
+                                }
+                            }
+                            document.addEventListener("click", function () {
+                                if (window.first != -1) {
+                                    //window.alert("hello");
+                                }
+                            });
+                        </script>
                     </div>
                 </div>
             </div>

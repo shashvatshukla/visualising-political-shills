@@ -3,6 +3,7 @@ import io
 import json
 import os
 import zipfile
+import json
 
 import plotly.graph_objs as go
 import plotly.offline as py
@@ -261,47 +262,49 @@ def metric4():
     max_width = 8
     min_width = 1
 
+    groups = ["Group 1 Humans", "Group 2 Humans", "Group 1 Bots", "Group 2 Bots"]
+
     coords_for_lines = [
         [[-3, 0, 3], [5.5, 5.5, 5.5], "right",
          color(metrics_data.sub_network[1][0][1]),
          max(min_width, max_width * metrics_data.sub_network[0][0][1] / max_tw),
-         metrics_data.sub_network[2][0][1][:5]],
+         [groups[0] + " to " + groups[1]]+metrics_data.sub_network[2][0][1][:5]],
         [[-3, 0, 3], [4.5, 4.5, 4.5], "left",
          color(metrics_data.sub_network[1][1][0]),
          max(min_width, max_width * metrics_data.sub_network[0][1][0] / max_tw),
-         metrics_data.sub_network[2][1][0][:5]],
+         [groups[1] + " to " + groups[0]]+metrics_data.sub_network[2][1][0][:5]],
         [[5.5, 5.5, 5.5], [3, 0, -3], "down",
          color(metrics_data.sub_network[1][1][3]),
          max(min_width, max_width * metrics_data.sub_network[0][1][3] / max_tw),
-         metrics_data.sub_network[2][1][3][:5]],
+         [groups[1] + " to " + groups[3]]+metrics_data.sub_network[2][1][3][:5]],
         [[4.5, 4.5, 4.5], [3, 0, -3], "up",
          color(metrics_data.sub_network[1][3][1]),
          max(min_width, max_width * metrics_data.sub_network[0][3][1] / max_tw),
-         metrics_data.sub_network[2][3][1][:5]],
+         [groups[3] + " to " + groups[1]]+metrics_data.sub_network[2][3][1][:5]],
         [[-5.5, -5.5, -5.5], [3, 0, -3], "down",
          color(metrics_data.sub_network[1][0][2]),
          max(min_width, max_width * metrics_data.sub_network[0][0][2] / max_tw),
-         metrics_data.sub_network[2][0][2][:5]],
+         [groups[0] + " to " + groups[2]]+metrics_data.sub_network[2][0][2][:5]],
         [[-4.5, -4.5, -4.5], [3, 0, -3.5], "up",
          color(metrics_data.sub_network[1][2][0]),
          max(min_width, max_width * metrics_data.sub_network[0][2][0] / max_tw),
-         metrics_data.sub_network[2][2][0][:5]],
+         [groups[2] + " to " + groups[0]]+metrics_data.sub_network[2][2][0][:5]],
         [[-3.5, 2, 4.5], [-4.5, 1, 3.5], "ne",
          color(metrics_data.sub_network[1][2][1]),
          max(min_width, max_width * metrics_data.sub_network[0][2][1] / max_tw),
-         metrics_data.sub_network[2][2][1][:5]],
+         [groups[2] + " to " + groups[1]]+metrics_data.sub_network[2][2][1][:5]],
         [[-4, -2, 3.5], [-3, -1, 4.5], "sw",
          color(metrics_data.sub_network[1][1][2]),
          max(min_width, max_width * metrics_data.sub_network[0][1][2] / max_tw),
-         metrics_data.sub_network[2][1][2][:5]],
+         [groups[1] + " to " + groups[2]]+metrics_data.sub_network[2][1][2][:5]],
         [[4, -1, -3.5], [-3, 2, 4.5], "nw",
          color(metrics_data.sub_network[1][3][0]),
          max(min_width, max_width * metrics_data.sub_network[0][3][0] / max_tw),
-         metrics_data.sub_network[2][3][0][:5]],
+         [groups[3] + " to " + groups[0]]+metrics_data.sub_network[2][3][0][:5]],
         [[-4, 1, 3.5], [3, -2, -4.5], "se",
          color(metrics_data.sub_network[1][0][3]),
          max(min_width, max_width * metrics_data.sub_network[0][0][3] / max_tw),
-         metrics_data.sub_network[2][0][3][:5]],
+         [groups[0] + " to " + groups[3]]+metrics_data.sub_network[2][0][3][:5]],
     ]
 
     lines = [go.Scatter(
@@ -391,7 +394,7 @@ def metric4():
     rendered = py.plot(fig, output_type='div')
 
     return render_template('metric4.html',
-                           network=Markup(rendered))
+                           network=Markup(rendered), data=json.dumps(metrics_data.sub_network[2]))
 
 
 @app.route('/download')
