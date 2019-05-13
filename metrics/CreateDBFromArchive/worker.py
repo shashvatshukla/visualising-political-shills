@@ -95,7 +95,7 @@ class Worker:
                     else:
                         rt_status = "FALSE"
 
-                    if tweet["truncated"]:
+                    if "extended_tweet" in tweet:
                         text = tweet["extended_tweet"]["full_text"]
                     else:
                         text = tweet["text"]
