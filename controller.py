@@ -235,16 +235,16 @@ def metric3():
 def metric4():
     def color(val):
         if val < -0.1:
-            return "#F44336"
+            return ("#F44336", "Negative average sentiment")
         elif val < 0.05:
-            return "#FFEB3B"
+            return ("#FFEB3B", "Neutral average sentiment")
         else:
-            return "#4CAF50"
+            return ("#4CAF50", "Positive average sentiment")
 
     def div_format(list):
         div = "<span>"
         for item in list:
-            div += "<br><br>" + item
+            div += "<br>" + item
 
         div += "</span>"
         return div
@@ -268,43 +268,43 @@ def metric4():
         [[-3, 0, 3], [5.5, 5.5, 5.5], "right",
          color(metrics_data.sub_network[1][0][1]),
          max(min_width, max_width * metrics_data.sub_network[0][0][1] / max_tw),
-         [groups[0] + " to " + groups[1]]+metrics_data.sub_network[2][0][1][:5]],
+         [groups[0] + " to " + groups[1]]],
         [[-3, 0, 3], [4.5, 4.5, 4.5], "left",
          color(metrics_data.sub_network[1][1][0]),
          max(min_width, max_width * metrics_data.sub_network[0][1][0] / max_tw),
-         [groups[1] + " to " + groups[0]]+metrics_data.sub_network[2][1][0][:5]],
+         [groups[1] + " to " + groups[0]]],
         [[5.5, 5.5, 5.5], [3, 0, -3], "down",
          color(metrics_data.sub_network[1][1][3]),
          max(min_width, max_width * metrics_data.sub_network[0][1][3] / max_tw),
-         [groups[1] + " to " + groups[3]]+metrics_data.sub_network[2][1][3][:5]],
+         [groups[1] + " to " + groups[3]]],
         [[4.5, 4.5, 4.5], [3, 0, -3], "up",
          color(metrics_data.sub_network[1][3][1]),
          max(min_width, max_width * metrics_data.sub_network[0][3][1] / max_tw),
-         [groups[3] + " to " + groups[1]]+metrics_data.sub_network[2][3][1][:5]],
+         [groups[3] + " to " + groups[1]]],
         [[-5.5, -5.5, -5.5], [3, 0, -3], "down",
          color(metrics_data.sub_network[1][0][2]),
          max(min_width, max_width * metrics_data.sub_network[0][0][2] / max_tw),
-         [groups[0] + " to " + groups[2]]+metrics_data.sub_network[2][0][2][:5]],
+         [groups[0] + " to " + groups[2]]],
         [[-4.5, -4.5, -4.5], [3, 0, -3.5], "up",
          color(metrics_data.sub_network[1][2][0]),
          max(min_width, max_width * metrics_data.sub_network[0][2][0] / max_tw),
-         [groups[2] + " to " + groups[0]]+metrics_data.sub_network[2][2][0][:5]],
+         [groups[2] + " to " + groups[0]]],
         [[-3.5, 2, 4.5], [-4.5, 1, 3.5], "ne",
          color(metrics_data.sub_network[1][2][1]),
          max(min_width, max_width * metrics_data.sub_network[0][2][1] / max_tw),
-         [groups[2] + " to " + groups[1]]+metrics_data.sub_network[2][2][1][:5]],
+         [groups[2] + " to " + groups[1]]],
         [[-4, -2, 3.5], [-3, -1, 4.5], "sw",
          color(metrics_data.sub_network[1][1][2]),
          max(min_width, max_width * metrics_data.sub_network[0][1][2] / max_tw),
-         [groups[1] + " to " + groups[2]]+metrics_data.sub_network[2][1][2][:5]],
+         [groups[1] + " to " + groups[2]]],
         [[4, -1, -3.5], [-3, 2, 4.5], "nw",
          color(metrics_data.sub_network[1][3][0]),
          max(min_width, max_width * metrics_data.sub_network[0][3][0] / max_tw),
-         [groups[3] + " to " + groups[0]]+metrics_data.sub_network[2][3][0][:5]],
+         [groups[3] + " to " + groups[0]]],
         [[-4, 1, 3.5], [3, -2, -4.5], "se",
          color(metrics_data.sub_network[1][0][3]),
          max(min_width, max_width * metrics_data.sub_network[0][0][3] / max_tw),
-         [groups[0] + " to " + groups[3]]+metrics_data.sub_network[2][0][3][:5]],
+         [groups[0] + " to " + groups[3]]],
     ]
 
     lines = [go.Scatter(
@@ -312,9 +312,9 @@ def metric4():
         y=coords[1],
         mode='lines+markers',
         hoverinfo='text',
-        text=['', div_format(coords[5]), ''],
+        text=['', div_format(coords[5] + [coords[3][1]]), ''],
         line=dict(
-            color=coords[3],
+            color=coords[3][0],
             width=coords[4]),
         marker=dict(
             size=15,
