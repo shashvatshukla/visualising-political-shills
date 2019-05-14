@@ -79,7 +79,6 @@
                                 table += "</td>";
                                 table += "</tr>";
                             }
-
                             return table
                         }
 
@@ -148,7 +147,9 @@
                         document.addEventListener("click", function () {
                             if (window.first != -1) {
                                 let tweets_table = document.getElementById("thtable");
-                                tweets_table.innerHTML = generate_table(tweets[first][second]);
+                                let table = generate_table(tweets[first][second]);
+                                //window.alert(table);
+                                tweets_table.innerHTML = table;
                             }
                         });
                     </script>
@@ -158,9 +159,9 @@
                     <div class="demo-card-wide mdl-card" style="width: 100%;">
                         <table class="mdl-card mdl-data-table mdl-js-data-table mdl-shadow--2dp"
                                style="width: 100%; overflow: auto; border: none;">
-                            <thead>
+                            <thead id="thtable">
                                 <tr>
-                                    <th class="mdl-data-table__cell--non-numeric" id="thtable">
+                                    <th class="mdl-data-table__cell--non-numeric">
                                         Click on an arrow to see a sample of the
                                         interactions of a group with another
                                     </th>
