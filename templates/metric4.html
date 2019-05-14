@@ -65,8 +65,6 @@
 
                         window.first = -1;
                         window.second = -1;
-                        from = ""
-                        to = ""
 
                         function generate_table(tweets){
                             let i = 0;
@@ -82,8 +80,6 @@
                                 table += "</tr>";
                             }
 
-                            document.getElementById("thtable").innerHTML =
-                                "Tweets from <u>" + from + "</u> to <u>" + to + "</u>";
                             return table
                         }
 
@@ -94,7 +90,7 @@
                                 let i = 0;
                                 let search_str = "<tspan class=\"line\" dy=";
                                 let count = 0;
-                                while (count != 3) {
+                                while (count != 2) {
                                     if (i>element.innerHTML.length){
                                         window.first = -1;
                                         window.second = -1;
@@ -151,8 +147,7 @@
                         }
                         document.addEventListener("click", function () {
                             if (window.first != -1) {
-                                let tweets_table = document.getElementById("tweets_table");
-                                //window.alert(generate_table(data[first][second]));
+                                let tweets_table = document.getElementById("thtable");
                                 tweets_table.innerHTML = generate_table(tweets[first][second]);
                             }
                         });

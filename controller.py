@@ -74,7 +74,7 @@ def second():
             metrics_data.tweets, start_date, end_date, 60)
 
         metrics_data.similar_text = simtex.cluster_tweets_by_text(shill_api, 4)
-        metrics_data.sub_network = netmet.sub_network(metrics_data.hashtags)
+        metrics_data.sub_network = netmet.sub_network(metrics_data.hashtags, start_date_timestamp, end_date_timestamp)
 
         if len(metrics_data.tweets) == 0:
             metrics_data.coeff_dictionary = "No tweets found"
