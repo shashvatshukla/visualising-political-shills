@@ -40,7 +40,7 @@ def get_edges(users):
     return edges
 
 
-def get_tweets(keywords):
+def get_tweets(keywords, start_time, end_time):
     select_tweets = """SELECT interactions.usr, interactions.other_usr, tweets.text, user_1.*, user_2.*, tweets.retweet_text
                        FROM interactions
                        INNER JOIN tweets
@@ -49,9 +49,10 @@ def get_tweets(keywords):
                        ON user_1.usr_id = interactions.usr
                        INNER JOIN user_metadata as user_2
                        ON user_2.usr_id = interactions.other_usr
-                       WHERE tweets.text LIKE %s """ + "OR tweets.text LIKE %s " * (len(keywords) - 1)
+                       WHERE %s < interactions.time AND interactions.time < %s AND
+                       tweets.text LIKE %s """ + "OR tweets.text LIKE %s " * (len(keywords) - 1)
     cursor = connection.cursor()
-    cursor.execute(select_tweets, ['%'+i+'%' for i in keywords])
+    cursor.execute(select_tweets, [start_time, end_time] + ['%'+i+'%' for i in keywords])
     fetched = [None]
     output = []
     while len(fetched) > 0:
@@ -69,7 +70,13 @@ def get_sentiment(groups, tweets):
     total_sentiment = [[0 for _ in range(len(groups))] for _ in range(len(groups))]
     for tweet in tweets:
         if tweet[0] in groups_dict and tweet[1] in groups_dict:
-            total_sentiment[groups_dict[tweet[0]]][groups_dict[tweet[1]]] += sentiment_compound_score({"text": tweet[2]})
+            text = tweet[2]
+            if tweet[27] is not None:
+                start_length = len(text.split(":")[0]) + 2
+                text = text[start_length + len(tweet[27]):]
+                if len(text) == 0:
+                    continue
+            total_sentiment[groups_dict[tweet[0]]][groups_dict[tweet[1]]] += sentiment_compound_score({"text": text})
             total_tweets[groups_dict[tweet[0]]][groups_dict[tweet[1]]] += 1
     return total_tweets, total_sentiment
 
@@ -81,8 +88,8 @@ def get_interaction_tweets(groups, tweets):
         for i in range(len(groups)):
             for j in range(len(groups)):
                 if len(interaction_tweets[i][j]) < 5 and tweet[0] in groups[i] and tweet[1] in groups[j]:
-                    if tweet[2][-1] == '\u2026':
-                        interaction_tweets[i][j].append(tweet[27])
+                    if tweet[2][-1] == '\u2026' or tweet[2][-2] == '\u2026':
+                        interaction_tweets[i][j].append(tweet[2].split(":")[0]+": "+tweet[27])
                     else:
                         interaction_tweets[i][j].append(tweet[2])
                     done = True
@@ -99,8 +106,8 @@ def get_interaction_tweets(groups, tweets):
     return interaction_tweets
 
 
-def sub_network(keywords):
-    tweets = get_tweets(keywords)
+def sub_network(keywords, start_time, end_time):
+    tweets = get_tweets(keywords, start_time, end_time)
     users = set()
     for i, data in enumerate(tweets):
         users.add((data[0],) + data[5:13])
