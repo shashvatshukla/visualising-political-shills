@@ -87,8 +87,11 @@
                             console.log(element.innerHTML);
                             if (element.innerHTML.length > 0) {
                                 let i = 0;
+                                let both = false;
                                 let search_str = "<tspan class=\"line\" dy=";
+                                let search_str_2 = "<text class=\"nums\" style=\"font-family: Arial, sans";
                                 let count = 0;
+                                let copy = 0;
                                 while (count != 2) {
                                     if (i>element.innerHTML.length){
                                         window.first = -1;
@@ -97,7 +100,73 @@
                                     }
                                     i += 1;
                                     if (element.innerHTML.slice(i, i + search_str.length) == search_str) {
+                                        if (count == 0){
+                                            copy = i;
+                                            while (element.innerHTML[copy] != '>') {
+                                                if (copy>element.innerHTML.length){
+                                                    window.first = -1;
+                                                    window.second = -1;
+                                                    return;
+                                                }
+                                                copy += 1;
+                                            }
+                                            copy += 1;
+                                            if (element.innerHTML.slice(copy,copy+4) == "Bots") {
+                                                while (element.innerHTML[copy] != '>') {
+                                                    if (copy>element.innerHTML.length){
+                                                        window.first = -1;
+                                                        window.second = -1;
+                                                        return;
+                                                    }
+                                                    copy += 1;
+                                                }
+                                                copy += 1;
+                                                while (element.innerHTML[copy] != '>') {
+                                                    if (copy>element.innerHTML.length){
+                                                        window.first = -1;
+                                                        window.second = -1;
+                                                        return;
+                                                    }
+                                                    copy += 1;
+                                                }
+                                                copy += 1;
+                                                if(element.innerHTML[copy+7] == "1"){
+                                                    first = 2;
+                                                    second = 2;
+                                                    return;
+                                                }
+                                                else{
+                                                    first = 3;
+                                                    second = 3;
+                                                    return;
+                                                }
+                                            }
+                                        }
                                         count += 1;
+                                    }
+                                    if (element.innerHTML.slice(i, i + search_str_2.length) == search_str_2) {
+                                        if (count == 0){
+                                            copy = i;
+                                            let done = true;
+                                            while (element.innerHTML[copy] != '>') {
+                                                if (copy>element.innerHTML.length){
+                                                    done = false
+                                                    break
+                                                }
+                                                copy += 1;
+                                            }
+                                            copy += 1;
+                                            if(done && element.innerHTML.slice(copy,copy+7) == "Group 1"){
+                                                first = 0;
+                                                second = 0;
+                                                return;
+                                            }
+                                            else if (done && element.innerHTML.slice(copy,copy+7) == "Group 2"){
+                                                first = 1;
+                                                second = 1;
+                                                return;
+                                            }
+                                        }
                                     }
                                 }
                                 while (element.innerHTML[i] != '>') {
@@ -148,7 +217,6 @@
                             if (window.first != -1) {
                                 let tweets_table = document.getElementById("thtable");
                                 let table = generate_table(tweets[first][second]);
-                                //window.alert(table);
                                 tweets_table.innerHTML = table;
                             }
                         });

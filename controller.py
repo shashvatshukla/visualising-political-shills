@@ -234,12 +234,12 @@ def metric3():
 @app.route('/metric4', methods=['GET'])
 def metric4():
     def color(val):
-        if val < -0.1:
-            return ("#F44336", "Negative average sentiment")
-        elif val < 0.05:
-            return ("#FFEB3B", "Neutral average sentiment")
+        if val < -0.03:
+            return ("#F44336", "Negative average sentiment:" + str(round(val*100,3)))
+        elif val < 0.03:
+            return ("#FFEB3B", "Neutral average sentiment:" + str(round(val*100,3)))
         else:
-            return ("#4CAF50", "Positive average sentiment")
+            return ("#4CAF50", "Positive average sentiment:" + str(round(val*100,3)))
 
     def div_format(list):
         div = "<span>"
