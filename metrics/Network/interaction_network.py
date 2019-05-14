@@ -138,4 +138,4 @@ def load_interactions_continue_on_error(start, keywords):
             print(e)
 
 
-load_interactions(0, ["Trump"])
+load_interactions(0, ["Trump", "Hillary", "Bernie", "trump", "hillary", "bernie"])
