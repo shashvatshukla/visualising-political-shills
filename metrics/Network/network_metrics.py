@@ -83,15 +83,19 @@ def get_sentiment(groups, tweets):
 
 def get_interaction_tweets(groups, tweets):
     interaction_tweets = [[[] for _ in range(len(groups))] for _ in range(len(groups))]
+    reply_count = [[0 for _ in range(len(groups))] for _ in range(len(groups))]
     for tweet in tweets:
         done = False
         for i in range(len(groups)):
             for j in range(len(groups)):
-                if len(interaction_tweets[i][j]) < 5 and tweet[0] in groups[i] and tweet[1] in groups[j]:
-                    if tweet[2][-1] == '\u2026' or tweet[2][-2] == '\u2026':
-                        interaction_tweets[i][j].append(tweet[2].split(":")[0]+": "+tweet[27])
-                    else:
-                        interaction_tweets[i][j].append(tweet[2])
+                if len(interaction_tweets[i][j])-reply_count[i][j] < 10 and reply_count[i][j]<10 and tweet[0] in groups[i] and tweet[1] in groups[j]:
+                    if (tweet[2][0:2] == "RT" and len(interaction_tweets[i][j])-reply_count[i][j] < 10) or (tweet[2][0:2] != "RT" and reply_count[i][j] < 10):
+                        if tweet[2][0:2] == "RT":
+                            reply_count[i][j] += 1
+                        if tweet[2][-1] == '\u2026' or tweet[2][-2] == '\u2026':
+                            interaction_tweets[i][j].append(tweet[2].split(":")[0]+": "+tweet[27])
+                        else:
+                            interaction_tweets[i][j].append(tweet[2])
                     done = True
                     break
             if done:
