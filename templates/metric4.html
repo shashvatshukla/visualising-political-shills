@@ -40,8 +40,7 @@
     </div>
     <main class="mdl-layout__content mdl-color--grey-100">
         <div class="mdl-grid">
-            <div class="mdl-layout-spacer"></div>
-            <div class = "mdl-cell mdl-cell--9-col">
+            <div class = "mdl-cell mdl-cell--5-col demo-card-wide mdl-card mdl-shadow--2dp">
                 <div class="demo-card-wide mdl-card mdl-shadow--2dp" style="width: 100%">
                     <div class="mdl-card__title">
                         <h2 class="mdl-card__title-text">Network Partitioning Graph</h2>
@@ -60,6 +59,22 @@
 
                             window.first = -1;
                             window.second = -1;
+
+                            function generate_table(tweets, original_tweets){
+                                let i = 0;
+                                let table = ""
+                                for(i=0; i<tweets.length; i++){
+                                    table += "<tr>";
+                                    table += '<td class="mdl-data-table__cell--non-numeric">';
+                                    table += tweets[i];
+                                    table += "</td>";
+                                    table += '<td class="mdl-data-table__cell--non-numeric">';
+                                    table += original_tweets[i];
+                                    table += "</td>";
+                                    table += "</tr>";
+                                }
+                                return table
+                            }
 
                             function myFunction() {
                                 console.log(element);
@@ -123,14 +138,44 @@
                             }
                             document.addEventListener("click", function () {
                                 if (window.first != -1) {
-                                    //window.alert("hello");
+                                    let tweets_table = document.getElementById("tweets_table");
+                                    //window.alert(generate_table(data[first][second], data[first][second]));
+                                    tweets_table.innerHTML = generate_table(tweets[first][second], tweets[first][second]);
                                 }
                             });
                         </script>
                     </div>
                 </div>
             </div>
-            <div class="mdl-layout-spacer"></div>
+            <div class = "demo-card-wide mdl-card mdl-shadow--2dp mdl-cell--6-col" style="overflow:auto">
+                <div class="mdl-card__title">
+                    <h2 class="mdl-card__title-text">Network Partitioning Graph</h2>
+                </div>
+                <div class="demo-card-wide mdl-card" style="width: 100%">
+                    <table class="mdl-data-table mdl-js-data-table mdl-shadow--2dp" style="width: 100%">
+                        <thead>
+                        <tr>
+                            <th class="mdl-data-table__cell--non-numeric">Tweet</th>
+                            <th>Original</th>
+                        </tr>
+                        </thead>
+                        <tbody id="tweets_table">
+                        <tr>
+                            <td class="mdl-data-table__cell--non-numeric">Acrylic (Transparent)</td>
+                            <td>25</td>
+                        </tr>
+                        <tr>
+                            <td class="mdl-data-table__cell--non-numeric">Plywood (Birch)</td>
+                            <td>50</td>
+                        </tr>
+                        <tr>
+                            <td class="mdl-data-table__cell--non-numeric">Laminate (Gold on Blue)</td>
+                            <td>10</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
     </main>
 </div>

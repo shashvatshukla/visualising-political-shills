@@ -41,7 +41,7 @@ def get_edges(users):
 
 
 def get_tweets(keywords):
-    select_tweets = """SELECT interactions.usr, interactions.other_usr, tweets.text, user_1.*, user_2.*
+    select_tweets = """SELECT interactions.usr, interactions.other_usr, tweets.text, user_1.*, user_2.*, tweets.retweet_text
                        FROM interactions
                        INNER JOIN tweets
                        ON tweets.twid = interactions.twid
@@ -81,7 +81,10 @@ def get_interaction_tweets(groups, tweets):
         for i in range(len(groups)):
             for j in range(len(groups)):
                 if len(interaction_tweets[i][j]) < 5 and tweet[0] in groups[i] and tweet[1] in groups[j]:
-                    interaction_tweets[i][j].append(tweet[2])
+                    if tweet[2][-1] == '\u2026':
+                        interaction_tweets[i][j].append(tweet[27])
+                    else:
+                        interaction_tweets[i][j].append(tweet[2])
                     done = True
                     break
             if done:
