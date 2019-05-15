@@ -51,7 +51,7 @@ def get_incidence_matrix(users_list, start, end, keywords):
                    FROM interactions
                    INNER JOIN tweets
                    ON tweets.twid = interactions.twid
-                   WHERE %s < interactions.time AND interactions.time < %s AND
+                   WHERE interactions.interaction = 'retweet' AND %s < interactions.time AND interactions.time < %s AND
                    tweets.text LIKE %s ''' + "OR tweets.text LIKE %s " * (len(keywords) - 1)
     cursor.execute(get_size, [start, end] + ['%'+i+'%' for i in keywords])
     num_edges = cursor.fetchall()[0]
@@ -59,7 +59,7 @@ def get_incidence_matrix(users_list, start, end, keywords):
                            FROM interactions
                            INNER JOIN tweets
                            ON tweets.twid = interactions.twid
-                           WHERE %s < interactions.time AND interactions.time < %s AND
+                           WHERE interactions.interaction = 'retweet' AND %s < interactions.time AND interactions.time < %s AND
                            tweets.text LIKE %s ''' + "OR tweets.text LIKE %s " * (len(keywords) - 1)
     cursor.execute(select_influence, [start, end] + ['%'+i+'%' for i in keywords])
     data = []
