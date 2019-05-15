@@ -117,7 +117,7 @@ def sub_network(keywords, start_time, end_time):
         users.add((data[0],) + data[5:13])
         users.add((data[1],) + data[17:25])
     users = np.array(list(users))
-    group1, group2 = partition_groups(users)
+    group1, group2 = partition_groups(users, start_time, end_time, keywords)
     group1h, group1b = partition_bots(group1)
     group2h, group2b = partition_bots(group2)
     total_tweets, total_sentiment = get_sentiment((group1h, group2h, group1b, group2b), tweets)

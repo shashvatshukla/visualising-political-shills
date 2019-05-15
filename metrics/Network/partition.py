@@ -42,18 +42,26 @@ def get_users(keywords=None):
         return list(users)
 
 
-def get_incidence_matrix(users_list):
+def get_incidence_matrix(users_list, start, end, keywords):
     users_dict = {}
     for i, user in enumerate(users_list):
         users_dict[user] = i
     cursor = connection.cursor()
     get_size = ''' SELECT COUNT(*)
-                   FROM influences;'''
-    cursor.execute(get_size)
+                   FROM interactions
+                   INNER JOIN tweets
+                   ON tweets.twid = interactions.twid
+                   WHERE %s < interactions.time AND interactions.time < %s AND
+                   tweets.text LIKE %s ''' + "OR tweets.text LIKE %s " * (len(keywords) - 1)
+    cursor.execute(get_size, [start, end] + ['%'+i+'%' for i in keywords])
     num_edges = cursor.fetchall()[0]
-    select_influence = ''' SELECT usr, other_usr
-                           FROM influences'''
-    cursor.execute(select_influence)
+    select_influence = ''' SELECT interactions.usr, interactions.other_usr
+                           FROM interactions
+                           INNER JOIN tweets
+                           ON tweets.twid = interactions.twid
+                           WHERE %s < interactions.time AND interactions.time < %s AND
+                           tweets.text LIKE %s ''' + "OR tweets.text LIKE %s " * (len(keywords) - 1)
+    cursor.execute(select_influence, [start, end] + ['%'+i+'%' for i in keywords])
     data = []
     i = []
     j = []
@@ -73,8 +81,8 @@ def get_incidence_matrix(users_list):
     return coo_matrix((data, (i, j)), shape=(int(num_edges[0]), len(users_list)))
 
 
-def partition_groups(users_list):
-    incidence = get_incidence_matrix(users_list[:, 0])
+def partition_groups(users_list, start, end, keywords):
+    incidence = get_incidence_matrix(users_list[:, 0], start, end, keywords)
     laplacian = incidence.transpose()*incidence
     w, v = eigs(laplacian)
     inds = np.argsort(np.real(w))
