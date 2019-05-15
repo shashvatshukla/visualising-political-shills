@@ -83,13 +83,11 @@ completed = 0
 def load_interactions(start, keywords):
     global completed
     cursor = connection.cursor()
-    size_query = ''' SELECT COUNT(*) FROM tweets
-                     WHERE (tweets.text LIKE %s) ''' + ('OR (tweets.text LIKE %s)' * (len(keywords) - 1))
-    cursor.execute(size_query, ['%'+i+'%' for i in keywords])
+    size_query = ''' SELECT COUNT(*) FROM tweets '''
+    cursor.execute(size_query, [])
     print(cursor.fetchall()[0][0])
-    tweets_query = ''' SELECT * FROM tweets
-                       WHERE (tweets.text LIKE %s) ''' + ('OR (tweets.text LIKE %s)' * (len(keywords) - 1))
-    cursor.execute(tweets_query, ['%'+i+'%' for i in keywords])
+    tweets_query = ''' SELECT * FROM tweets '''
+    cursor.execute(tweets_query, [])
     tweets = [None]
     previous = 0
     while len(tweets) > 0:
