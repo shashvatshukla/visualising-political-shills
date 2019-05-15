@@ -253,7 +253,7 @@ def metric4():
         x=[-5, 5, -5, 5],
         y=[8, 8, -9, -9],
         text=['Group 1', 'Group 2',
-              'Bots <br> Group 1', 'Bots <br> Group 2'],
+              'Shills <br> Group 1', 'Shills <br> Group 2'],
         mode='text',
         hoverinfo='text',
     )
