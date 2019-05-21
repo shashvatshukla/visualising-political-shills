@@ -25,21 +25,21 @@ We designed our solution to help an Election Commission achieve the objectives o
 
 First an Election Commission official enters a list of hashtags they would like to investigate and a time period:
 
-[landing page](https://github.com/shashvatshukla/visualising-political-shills/blob/master/screenshots/landingpage.png)
+![landing page](https://github.com/shashvatshukla/visualising-political-shills/blob/master/screenshots/landingpage.png)
 
 The app will then call twitter APIs for relevant data and perform all our analysis on the data. 
 
-[loading screen](https://github.com/shashvatshukla/visualising-political-shills/blob/master/screenshots/loadingpage.png)
+![loading screen](https://github.com/shashvatshukla/visualising-political-shills/blob/master/screenshots/loadingpage.png)
 
 This analysis will be presented on a dashboard...
 
-[dashboard](https://github.com/shashvatshukla/visualising-political-shills/blob/master/screenshots/dashboard.png)
+![dashboard](https://github.com/shashvatshukla/visualising-political-shills/blob/master/screenshots/dashboard.png)
 
 The user may click through to get more details:
 
-[network partitioning page](https://github.com/shashvatshukla/visualising-political-shills/blob/master/screenshots/networkpartition.png)
+![network partitioning page](https://github.com/shashvatshukla/visualising-political-shills/blob/master/screenshots/networkpartition.png)
 
-[repeated tweets page](https://github.com/shashvatshukla/visualising-political-shills/blob/master/screenshots/textcluster.png)
+![repeated tweets page](https://github.com/shashvatshukla/visualising-political-shills/blob/master/screenshots/textcluster.png)
 
 Our analysis metrics include:
 * Traffic and Sentiment over Time and Spike detection
